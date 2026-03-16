@@ -2,12 +2,15 @@ import { FinancialMonth, Transaction } from "../models/index.js";
 import { sendMonthlyReportEmail } from "../services/emailService.js";
 import { ensureFinancialMonth, serializeMonth } from "../services/financeService.js";
 import { generateMonthlyPdf } from "../services/pdfService.js";
+import { cleanupExpiredReceiptsForUser } from "../services/receiptRetentionService.js";
 import { buildReceiptEmailAttachments } from "../services/uploadService.js";
 import { validateEditableMonth } from "../utils/monthEditability.js";
 import { validateMonthPayload } from "../utils/transactionValidation.js";
 import { validateAllowedYear } from "../utils/yearValidation.js";
 
 export const listYearMonths = async (req, res) => {
+  await cleanupExpiredReceiptsForUser(req.user.id);
+
   const year = Number(req.query.year || new Date().getFullYear());
   const validationError = validateAllowedYear(year);
 
@@ -29,6 +32,8 @@ export const listYearMonths = async (req, res) => {
 };
 
 export const getMonthDetails = async (req, res) => {
+  await cleanupExpiredReceiptsForUser(req.user.id);
+
   const year = Number(req.params.year);
   const month = Number(req.params.month);
   const validationError = validateAllowedYear(year);

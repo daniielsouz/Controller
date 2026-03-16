@@ -127,15 +127,6 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
                       <td>{index + 1}</td>
                       <td className="left">
                         <div>{transaction.description}</div>
-                        {transaction.receiptUrl && (
-                          <a href={transaction.receiptUrl} target="_blank" rel="noreferrer">
-                            <img
-                              className="sheet-receipt-thumb"
-                              src={transaction.receiptUrl}
-                              alt={transaction.invoiceNumber || transaction.description}
-                            />
-                          </a>
-                        )}
                         <div className="sheet-mini-actions">
                           {canEdit && (
                             <button className="ghost mini-button" type="button" onClick={() => onEdit(transaction)}>
