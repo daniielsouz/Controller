@@ -21,23 +21,34 @@ export default function DashboardPage() {
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [isSavingTransaction, setIsSavingTransaction] = useState(false);
   const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
+  const [isLoadingMonth, setIsLoadingMonth] = useState(true);
   const isEditableMonth = selectedMonth?.isEditable ?? true;
 
   const loadYear = async (selectedYear = year) => {
-    const safeYear = Math.min(selectedYear, currentYear);
-    const { data } = await http.get(`/months?year=${safeYear}`);
-    setMonths(data);
-    setSelectedMonth((current) => {
-      const preferredMonth = current?.month || new Date().getMonth() + 1;
-      return data.find((item) => item.month === preferredMonth) || data[0];
-    });
+    setIsLoadingMonth(true);
+    try {
+      const safeYear = Math.min(selectedYear, currentYear);
+      const { data } = await http.get(`/months?year=${safeYear}`);
+      setMonths(data);
+      setSelectedMonth((current) => {
+        const preferredMonth = current?.month || new Date().getMonth() + 1;
+        return data.find((item) => item.month === preferredMonth) || data[0];
+      });
+    } finally {
+      setIsLoadingMonth(false);
+    }
   };
 
   const loadMonth = async (selectedYear, selectedMonthValue) => {
-    const { data } = await http.get(`/months/${selectedYear}/${selectedMonthValue}`);
-    setSelectedMonth(data);
-    setNotes(data.notes || "");
-    setMunicipality(data.municipality || "Chapeco");
+    setIsLoadingMonth(true);
+    try {
+      const { data } = await http.get(`/months/${selectedYear}/${selectedMonthValue}`);
+      setSelectedMonth(data);
+      setNotes(data.notes || "");
+      setMunicipality(data.municipality || "Chapeco");
+    } finally {
+      setIsLoadingMonth(false);
+    }
   };
 
   const loadRecipientEmails = async () => {
@@ -256,7 +267,13 @@ export default function DashboardPage() {
         onSelect={(month) => loadMonth(month.year, month.month)}
       />
 
-      {selectedMonth && (
+      {isLoadingMonth && (
+        <div className="card">
+          <p className="muted">Conectando ao banco de dados e buscando a planilha...</p>
+        </div>
+      )}
+
+      {!isLoadingMonth && selectedMonth && (
         <section className="content-grid">
           <div className="sheet-column">
             <MonthlySheet
