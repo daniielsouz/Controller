@@ -15,7 +15,8 @@ export default function TransactionForm({
   onSubmit,
   editingTransaction,
   onCancel,
-  disabled = false
+  disabled = false,
+  isSubmitting = false
 }) {
   const [form, setForm] = useState(initialForm);
   const [receipt, setReceipt] = useState(null);
@@ -151,7 +152,13 @@ export default function TransactionForm({
       )}
       <div className="form-actions">
         <button className="primary" type="submit" disabled={disabled}>
-          {editingTransaction ? "Salvar edicao" : "Adicionar movimento"}
+          {isSubmitting
+            ? editingTransaction
+              ? "Atualizando..."
+              : "Adicionando..."
+            : editingTransaction
+              ? "Salvar edicao"
+              : "Adicionar movimento"}
         </button>
         {editingTransaction && (
           <button className="ghost" type="button" onClick={onCancel} disabled={disabled}>

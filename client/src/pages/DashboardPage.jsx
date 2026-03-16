@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [municipality, setMunicipality] = useState("Chapeco");
   const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
   const [isSendingReport, setIsSendingReport] = useState(false);
+  const [isSavingTransaction, setIsSavingTransaction] = useState(false);
+  const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
   const isEditableMonth = selectedMonth?.isEditable ?? true;
 
   const loadYear = async (selectedYear = year) => {
@@ -83,8 +85,15 @@ export default function DashboardPage() {
       return;
     }
 
+    const isEditing = Boolean(editingTransaction);
+    setIsSavingTransaction(true);
+    setStatusMessage({
+      type: "success",
+      text: isEditing ? "Atualizando movimento..." : "Adicionando movimento..."
+    });
+
     try {
-      if (editingTransaction) {
+      if (isEditing) {
         await http.put(`/transactions/${editingTransaction.id}`, payload, {
           headers: { "Content-Type": "multipart/form-data" }
         });
@@ -104,6 +113,8 @@ export default function DashboardPage() {
         text: error.response?.data?.message || "Nao foi possivel salvar o movimento."
       });
       throw error;
+    } finally {
+      setIsSavingTransaction(false);
     }
   };
 
@@ -112,8 +123,27 @@ export default function DashboardPage() {
       return;
     }
 
-    await http.delete(`/transactions/${transactionId}`);
-    await refreshMonthAndGrid(selectedMonth.month);
+    const confirmed = window.confirm("Tem certeza que deseja excluir este movimento?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeletingTransaction(true);
+    setStatusMessage({ type: "success", text: "Excluindo movimento..." });
+
+    try {
+      await http.delete(`/transactions/${transactionId}`);
+      await refreshMonthAndGrid(selectedMonth.month);
+      setStatusMessage({ type: "success", text: "Movimento excluido com sucesso." });
+    } catch (error) {
+      setStatusMessage({
+        type: "error",
+        text: error.response?.data?.message || "Nao foi possivel excluir o movimento."
+      });
+    } finally {
+      setIsDeletingTransaction(false);
+    }
   };
 
   const handleSaveNotes = async () => {
@@ -250,7 +280,8 @@ export default function DashboardPage() {
               editingTransaction={editingTransaction}
               onCancel={() => setEditingTransaction(null)}
               onSubmit={handleCreateOrUpdate}
-              disabled={!isEditableMonth}
+              disabled={!isEditableMonth || isSavingTransaction || isDeletingTransaction}
+              isSubmitting={isSavingTransaction}
             />
 
             <div className="card form-grid">
