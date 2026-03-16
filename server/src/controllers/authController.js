@@ -1,8 +1,5 @@
-import { OAuth2Client } from "google-auth-library";
 import { User } from "../models/index.js";
 import { signToken } from "../utils/jwt.js";
-
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authResponse = (user, rememberMe = false) => ({
   token: signToken(user, rememberMe),
@@ -45,34 +42,6 @@ export const login = async (req, res) => {
   }
 
   return res.json(authResponse(user, Boolean(rememberMe)));
-};
-
-export const googleLogin = async (req, res) => {
-  try {
-    const { credential, rememberMe } = req.body;
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
-    const payload = ticket.getPayload();
-
-    let user = await User.findOne({ where: { email: payload.email } });
-
-    if (!user) {
-      user = await User.create({
-        name: payload.name,
-        email: payload.email,
-        googleId: payload.sub
-      });
-    } else if (!user.googleId) {
-      user.googleId = payload.sub;
-      await user.save();
-    }
-
-    return res.json(authResponse(user, Boolean(rememberMe)));
-  } catch (_error) {
-    return res.status(401).json({ message: "Falha ao autenticar com Google." });
-  }
 };
 
 export const me = async (req, res) =>

@@ -1,4 +1,3 @@
-import { GoogleLogin } from "@react-oauth/google";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
 import AuthCard from "../components/AuthCard.jsx";
@@ -68,23 +67,6 @@ export default function LoginPage() {
           Entrar
         </button>
       </form>
-
-      <div className="divider">ou</div>
-
-      <GoogleLogin
-        onSuccess={async (credentialResponse) => {
-          try {
-            const { data } = await http.post("/auth/google", {
-              credential: credentialResponse.credential,
-              rememberMe: form.rememberMe
-            });
-            saveAuth(data);
-          } catch (_error) {
-            setError("Falha no login com Google.");
-          }
-        }}
-        onError={() => setError("Falha no login com Google.")}
-      />
 
       <p className="muted centered">
         <Link to="/cadastro">Criar conta com nome, e-mail e senha</Link>

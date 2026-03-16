@@ -10,14 +10,13 @@ Esse projeto junta:
 - `Node.js + Express` no backend
 - `MySQL + Sequelize` no banco de dados
 - organizacao em `MVC` no backend
-- autenticacao com `e-mail/senha` e `Google`
+- autenticacao com `e-mail/senha`
 - geracao de `PDF` a partir do HTML da planilha
 
 ## O que existe no sistema
 
 - cadastro com nome, e-mail e senha
 - login local
-- login com Google
 - opcao `Lembre de mim` por 30 dias
 - abas mensais de janeiro a dezembro
 - saldo carregado de um mes para o seguinte
@@ -135,10 +134,9 @@ O nome informado no cadastro e o mesmo nome mostrado na planilha e no PDF.
 
 ### Login
 
-O acesso pode acontecer por:
+O acesso acontece por:
 
 - e-mail e senha
-- conta Google
 
 Quando `Lembre de mim` estiver ativo:
 
@@ -209,15 +207,6 @@ Tambem existe:
 - lista de destinos salvos
 - reaproveitamento desses destinos em envios futuros
 
-## Login com Google
-
-O projeto espera:
-
-- `GOOGLE_CLIENT_ID` no backend
-- `VITE_GOOGLE_CLIENT_ID` no frontend
-
-Esse client id vem do Google Cloud.
-
 ## SMTP
 
 O envio de e-mail depende destas variaveis:
@@ -236,7 +225,6 @@ Autenticacao:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `POST /api/auth/google`
 - `GET /api/auth/me`
 
 Meses:
