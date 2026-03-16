@@ -1,58 +1,57 @@
 # Controller Financeiro
 
-Sistema full stack para controle financeiro mensal com visual de planilha, autenticação, upload de comprovantes, geração de PDF e envio por e-mail.
+Sistema full stack de controle financeiro mensal com visual de planilha, autenticacao, upload de comprovantes, geracao de PDF e envio por e-mail.
 
-## Visão geral
+## Visao geral
 
-O projeto foi construído com:
+Esse projeto junta:
 
 - `React + Vite` no frontend
 - `Node.js + Express` no backend
 - `MySQL + Sequelize` no banco de dados
-- organização em `MVC` no backend
-- autenticação com `e-mail/senha` e `Google`
-- geração de `PDF` a partir do HTML da própria planilha
+- organizacao em `MVC` no backend
+- autenticacao com `e-mail/senha` e `Google`
+- geracao de `PDF` a partir do HTML da planilha
 
-## Principais funcionalidades
+## O que existe no sistema
 
-- cadastro com `nome`, `e-mail` e `senha`
-- login com conta local
-- login com conta Google
-- opção `Lembre de mim` com renovação de sessão por 30 dias
+- cadastro com nome, e-mail e senha
+- login local
+- login com Google
+- opcao `Lembre de mim` por 30 dias
 - abas mensais de janeiro a dezembro
-- saldo carregado de um mês para o seguinte
-- cadastro de lançamentos por categoria
-- upload de foto da nota/comprovante
-- miniatura da imagem na planilha
+- saldo carregado de um mes para o seguinte
+- lancamentos com deposito, debito e credito
+- upload de comprovantes
+- miniatura da nota dentro da planilha
 - envio do PDF mensal por e-mail
 - envio dos comprovantes junto com o PDF
-- cadastro e reutilização de e-mails de destino
-- campo editável de município por mês
-- CRUD de lançamentos
-- observações por mês
+- cadastro de destinos de e-mail
+- municipio editavel por mes
+- observacoes por mes
 
-## Regra de negócio
+## Regra de negocio
 
-O sistema usa a seguinte lógica financeira:
+A conta do mes segue esta leitura:
 
 - `saldo final = saldo anterior + depositos - debitos`
-- lançamentos do tipo `credito` não entram no saldo final
-- `deposito` não entra como gasto no débito
-- saldo positivo indica que o usuário deve para a empresa
-- saldo negativo indica que a empresa deve para o usuário
+- `credito` fica registrado, mas nao altera o saldo final
+- `deposito` entra como valor disponivel, nao como gasto
+- saldo positivo indica que o usuario deve para a empresa
+- saldo negativo indica que a empresa deve para o usuario
 
-## Estrutura do projeto
+## Estrutura
 
 ```text
 Controller/
-├─ client/   # frontend React
-├─ server/   # backend Express + Sequelize
-└─ README.md
+|- client/   frontend React
+|- server/   backend Express + Sequelize
+`- README.md
 ```
 
-### Frontend
+## Arquivos principais
 
-Arquivos principais:
+Frontend:
 
 - [client/src/App.jsx](/c:/Users/BepoO/Desktop/Controller/client/src/App.jsx)
 - [client/src/pages/DashboardPage.jsx](/c:/Users/BepoO/Desktop/Controller/client/src/pages/DashboardPage.jsx)
@@ -60,9 +59,7 @@ Arquivos principais:
 - [client/src/components/TransactionForm.jsx](/c:/Users/BepoO/Desktop/Controller/client/src/components/TransactionForm.jsx)
 - [client/src/context/AuthContext.jsx](/c:/Users/BepoO/Desktop/Controller/client/src/context/AuthContext.jsx)
 
-### Backend
-
-Arquivos principais:
+Backend:
 
 - [server/src/server.js](/c:/Users/BepoO/Desktop/Controller/server/src/server.js)
 - [server/src/app.js](/c:/Users/BepoO/Desktop/Controller/server/src/app.js)
@@ -72,116 +69,59 @@ Arquivos principais:
 - [server/src/services/financeService.js](/c:/Users/BepoO/Desktop/Controller/server/src/services/financeService.js)
 - [server/src/services/pdfService.js](/c:/Users/BepoO/Desktop/Controller/server/src/services/pdfService.js)
 
-## Requisitos
+## Ambiente
 
-Antes de rodar, tenha instalado:
+Os exemplos de ambiente ficam aqui:
 
-- `Node.js`
-- `npm`
-- `MySQL`
+- [server/.env.example](/c:/Users/BepoO/Desktop/Controller/server/.env.example)
+- [client/.env.example](/c:/Users/BepoO/Desktop/Controller/client/.env.example)
 
-Opcional, para recursos extras:
-
-- conta Google Cloud para login com Google
-- conta SMTP para envio de e-mails
-- conta Cloudinary para armazenar imagens na nuvem
-
-## Instalação
-
-Na raiz do projeto:
-
-```bash
-npm run install:all
-```
-
-## Configuração de ambiente
-
-### Backend
-
-Copie [server/.env.example](/c:/Users/BepoO/Desktop/Controller/server/.env.example) para `server/.env`.
-
-Exemplo:
+A ideia desses arquivos agora e servir como referencia de cada variavel.
+Cada linha ja vem acompanhada de uma descricao curta, no estilo:
 
 ```env
-PORT=3333
-CLIENT_URL=http://localhost:5173
-SERVER_PUBLIC_URL=http://localhost:3333
+# Chave de acesso usada na assinatura dos tokens JWT
 JWT_SECRET=troque_esta_chave
-
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=controller_financeiro
-DB_USER=root
-DB_PASSWORD=admin
-
-GOOGLE_CLIENT_ID=
-
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM="Controller Financeiro <no-reply@example.com>"
-
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-```
-
-### Frontend
-
-Copie [client/.env.example](/c:/Users/BepoO/Desktop/Controller/client/.env.example) para `client/.env`.
-
-Exemplo:
-
-```env
-VITE_API_URL=http://localhost:3333/api
-VITE_GOOGLE_CLIENT_ID=
 ```
 
 ## Banco de dados
 
-Crie o banco:
+O nome esperado para o banco e:
 
 ```sql
 CREATE DATABASE controller_financeiro;
 ```
 
-O projeto usa `sequelize.sync({ alter: true })`, então as tabelas são criadas e ajustadas automaticamente quando o backend sobe.
+O projeto usa `sequelize.sync({ alter: true })`, entao o backend cria ou ajusta as tabelas quando sobe.
 
-### Principais tabelas
+As tabelas principais sao:
 
 - `users`
 - `financial_months`
 - `transactions`
 - `recipient_emails`
 
-## Como rodar
+## Execucao local
 
-### Backend
+As dependencias do projeto inteiro sao instaladas pela raiz:
+
+```bash
+npm run install:all
+```
+
+O backend costuma rodar em:
 
 ```bash
 npm run dev:server
 ```
 
-ou
-
-```bash
-cmd /c "cd server && node src/server.js"
-```
-
-### Frontend
+O frontend costuma rodar em:
 
 ```bash
 npm run dev:client
 ```
 
-ou
-
-```bash
-cmd /c "cd client && npm run dev"
-```
-
-### Endereços
+Enderecos esperados:
 
 - frontend: `http://localhost:5173`
 - backend: `http://localhost:3333`
@@ -189,100 +129,98 @@ cmd /c "cd client && npm run dev"
 
 ## Fluxo de uso
 
-### 1. Cadastro
+### Cadastro
 
-Na criação da conta, o sistema solicita:
+O nome informado no cadastro e o mesmo nome mostrado na planilha e no PDF.
 
-- nome
-- e-mail
-- senha
+### Login
 
-Esse nome cadastrado é o nome que aparece na planilha e no PDF.
-
-### 2. Login
-
-O acesso pode ser feito por:
+O acesso pode acontecer por:
 
 - e-mail e senha
 - conta Google
 
-Se a opção `Lembre de mim` for marcada:
+Quando `Lembre de mim` estiver ativo:
 
-- a sessão é salva por 30 dias
-- cada novo acesso dentro desse prazo renova a validade por mais 30 dias
-- se passar mais de 30 dias sem acessar, o sistema pede login novamente
+- a sessao dura ate 30 dias
+- cada novo acesso dentro desse prazo renova esse periodo
 
-### 3. Planilha mensal
+### Planilha
 
-Cada mês tem:
+Cada mes carrega:
 
-- município
+- municipio
 - saldo anterior
-- lançamentos
-- observações
+- lancamentos
+- observacoes
 - totais por categoria
 - saldo final
 
-As categorias visuais da planilha são:
+As secoes visuais da planilha sao:
 
 - `DEPOSITOS`
 - `DESPESAS COM VEICULO`
 - `OUTRAS DESPESAS`
 
-### 4. Cadastro de lançamento
+### Lancamentos
 
-Campos principais:
+Os campos principais sao:
 
 - categoria
 - data
-- descrição
-- número da nota
+- descricao
+- numero da nota
 - tipo de movimento
 - valor
 - foto da nota
 
-Comportamento especial para `Depositos`:
+No caso de `Depositos`:
 
-- descrição é preenchida automaticamente como `Deposito em conta`
-- número da nota fica vazio e bloqueado
-- tipo de movimento fica automaticamente como depósito e bloqueado
+- a descricao vira `Deposito em conta`
+- o numero da nota fica vazio e bloqueado
+- o tipo de movimento fica bloqueado
 
-### 5. Comprovantes
+### Comprovantes
 
-Ao anexar uma imagem:
+As imagens podem seguir dois caminhos:
 
-- ela pode ser salva no Cloudinary, se configurado
-- se o Cloudinary não estiver configurado, ela é salva localmente em `server/uploads`
-- a miniatura aparece na planilha
-- a imagem segue anexada no e-mail junto com o PDF
+- Cloudinary, quando as credenciais estiverem presentes
+- pasta local `server/uploads`, quando o projeto estiver sem Cloudinary
 
-Nome dos arquivos anexados:
+Os nomes dos comprovantes anexados no e-mail seguem este padrao:
 
-- formato: `data - numero da nota - categoria.extensao`
+- `data - numero da nota - categoria.extensao`
 
 Exemplo:
 
 - `16-03-2026 - 1234 - veiculos.jpg`
 
-### 6. Envio por e-mail
+### Envio por e-mail
 
-Ao enviar o controle financeiro:
+Quando o relatorio mensal e enviado:
 
-- o sistema gera um PDF do mês
-- anexa os comprovantes do mês
-- envia tudo para o e-mail informado
+- o sistema gera o PDF
+- anexa os comprovantes daquele mes
+- envia tudo para o destino preenchido
 
-Também é possível:
+Tambem existe:
 
-- informar um e-mail manualmente
-- salvar e-mails de destino
-- selecionar destinos salvos em envios futuros
+- preenchimento manual do e-mail
+- lista de destinos salvos
+- reaproveitamento desses destinos em envios futuros
 
-## Configuração do envio de e-mail
+## Login com Google
 
-O sistema usa SMTP.
+O projeto espera:
 
-Campos obrigatórios no [server/.env.example](/c:/Users/BepoO/Desktop/Controller/server/.env.example):
+- `GOOGLE_CLIENT_ID` no backend
+- `VITE_GOOGLE_CLIENT_ID` no frontend
+
+Esse client id vem do Google Cloud.
+
+## SMTP
+
+O envio de e-mail depende destas variaveis:
 
 - `SMTP_HOST`
 - `SMTP_PORT`
@@ -290,186 +228,68 @@ Campos obrigatórios no [server/.env.example](/c:/Users/BepoO/Desktop/Controller
 - `SMTP_PASS`
 - `SMTP_FROM`
 
-### Exemplo com Gmail
-
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=seuemail@gmail.com
-SMTP_PASS=sua_senha_de_app
-SMTP_FROM="Controller Financeiro <seuemail@gmail.com>"
-```
-
-Importante:
-
-- no Gmail, use `senha de app`
-- a senha normal da conta geralmente não funciona
-
-## Configuração do login com Google
-
-Para o login Google funcionar, configure:
-
-- `GOOGLE_CLIENT_ID` no backend
-- `VITE_GOOGLE_CLIENT_ID` no frontend
-
-Esse client id deve vir do projeto criado no Google Cloud.
-
-## Armazenamento das imagens
-
-### Com Cloudinary
-
-Se estas variáveis estiverem preenchidas:
-
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-
-as imagens serão salvas na nuvem.
-
-### Sem Cloudinary
-
-Se o Cloudinary não estiver configurado:
-
-- as imagens são salvas localmente em `server/uploads`
-- a API expõe os arquivos em `/uploads/...`
-
-## PDF
-
-O PDF mensal:
-
-- é gerado a partir do HTML da planilha
-- segue o mesmo formato visual do site
-- inclui município, nome do usuário, categorias e totais do mês
-
-Arquivo principal:
-
-- [server/src/services/pdfService.js](/c:/Users/BepoO/Desktop/Controller/server/src/services/pdfService.js)
+No Gmail, o uso mais comum e com `senha de app`.
 
 ## API
 
-### Autenticação
+Autenticacao:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/auth/google`
 - `GET /api/auth/me`
 
-### Meses
+Meses:
 
 - `GET /api/months?year=2026`
 - `GET /api/months/:year/:month`
 - `PUT /api/months/:year/:month`
 - `POST /api/months/:year/:month/send-report`
 
-### Lançamentos
+Lancamentos:
 
 - `POST /api/transactions`
 - `PUT /api/transactions/:id`
 - `DELETE /api/transactions/:id`
 
-### E-mails de destino
+Destinos de e-mail:
 
 - `GET /api/recipient-emails`
 - `POST /api/recipient-emails`
 - `DELETE /api/recipient-emails/:id`
 
-## Modelo de dados
-
-### FinancialMonth
-
-Armazena:
-
-- usuário
-- ano
-- mês
-- saldo anterior
-- município
-- observações
-
-### Transaction
-
-Armazena:
-
-- data da compra
-- descrição
-- número da nota
-- categoria
-- tipo
-- valor
-- URL do comprovante
-
-### Tipos de transação
-
-- `deposito`
-- `debito`
-- `credito`
-
-### Categorias
-
-- `depositos`
-- `veiculos`
-- `outras-despesas`
-
 ## Comportamentos importantes
 
-### Ano futuro bloqueado
+### Ano futuro
 
-O sistema não permite:
+O sistema nao permite trabalhar com anos futuros.
 
-- selecionar ano futuro no frontend
-- consultar ano futuro pela API
+### Meses futuros do ano atual
 
-### Ordenação
+Os meses futuros continuam visiveis, mas ficam bloqueados para edicao ate o calendario chegar neles.
 
-Os lançamentos dentro de cada categoria são mostrados em ordem crescente:
+### Ordenacao
+
+Dentro de cada categoria, os itens aparecem em ordem crescente:
 
 - primeiro por data
-- depois por descrição
+- depois por descricao
 
-### Saldo automático entre meses
+### Saldo entre meses
 
-Quando um mês é criado:
+O saldo final de um mes e carregado como saldo inicial do mes seguinte.
 
-- o sistema procura o mês anterior
-- calcula o saldo final do mês anterior
-- usa esse valor como saldo inicial do mês atual
+## Pontos de apoio
 
-## Solução de problemas
+Quando algo parecer estranho, estes lugares costumam ser os mais uteis:
 
-### A tela fica em branco
+- [server/src/services/financeService.js](/c:/Users/BepoO/Desktop/Controller/server/src/services/financeService.js)
+- [server/src/services/pdfService.js](/c:/Users/BepoO/Desktop/Controller/server/src/services/pdfService.js)
+- [server/src/controllers/transactionController.js](/c:/Users/BepoO/Desktop/Controller/server/src/controllers/transactionController.js)
+- [client/src/pages/DashboardPage.jsx](/c:/Users/BepoO/Desktop/Controller/client/src/pages/DashboardPage.jsx)
+- [client/src/components/TransactionForm.jsx](/c:/Users/BepoO/Desktop/Controller/client/src/components/TransactionForm.jsx)
 
-Confira:
-
-- se o backend está rodando
-- se o MySQL está ativo
-- se o `server/.env` está preenchido corretamente
-
-### Erro de SMTP não configurado
-
-Preencha no `server/.env`:
-
-- `SMTP_USER`
-- `SMTP_PASS`
-
-### O PDF não envia
-
-Verifique:
-
-- backend ativo
-- SMTP configurado
-- e-mail de destino válido
-
-### A imagem não aparece
-
-Verifique:
-
-- se o upload foi feito com sucesso
-- se a URL do comprovante foi salva
-- se a pasta `server/uploads` existe quando o Cloudinary não estiver ativo
-
-## Scripts úteis
-
-Na raiz:
+## Scripts
 
 ```bash
 npm run install:all
@@ -479,10 +299,13 @@ npm run dev:client
 npm run build
 ```
 
-## Observações finais
+## Fechamento
 
-- o backend lê automaticamente `server/.env`
-- o frontend usa `client/.env`
-- o projeto está preparado para uso local e pode ser expandido para deploy
-- o PDF atual está alinhado com o formato visual validado no projeto
+Hoje o projeto esta preparado para:
 
+- uso local
+- validacao visual da planilha
+- geracao de PDF no mesmo formato da tela
+- envio de relatorio por e-mail com comprovantes
+
+O README agora segue um tom mais descritivo e os arquivos `.env.example` funcionam como uma legenda viva das variaveis do projeto.
