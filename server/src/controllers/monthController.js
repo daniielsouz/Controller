@@ -110,6 +110,7 @@ export const sendMonthReport = async (req, res) => {
     attachmentBuffer: pdfBuffer,
     filename: `controle-${year}-${String(month).padStart(2, "0")}.pdf`,
     monthLabel: `${String(month).padStart(2, "0")}/${year}`,
+    userName: req.user?.name,
     contentType: "application/pdf",
     extensionLabel: "PDF",
     extraAttachments: receiptAttachments

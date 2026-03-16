@@ -5,6 +5,7 @@ export const sendMonthlyReportEmail = async ({
   attachmentBuffer,
   filename,
   monthLabel,
+  userName,
   contentType,
   extensionLabel,
   extraAttachments = []
@@ -18,7 +19,7 @@ export const sendMonthlyReportEmail = async ({
   await mailer.sendMail({
     from: process.env.SMTP_FROM,
     to,
-    subject: `Controle financeiro ${monthLabel}`,
+    subject: `[Controle Financeiro] - ${userName || "Responsavel"} - ${monthLabel}`,
     text: `Segue em anexo o arquivo ${extensionLabel} do controle financeiro referente a ${monthLabel}.`,
     attachments: [
       {

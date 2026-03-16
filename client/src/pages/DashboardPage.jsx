@@ -4,6 +4,53 @@ import MonthlySheet from "../components/MonthlySheet.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+const buildCacheKey = (userId, scope) => `controller-cache:${userId}:${scope}`;
+
+const readCache = (key) => {
+  try {
+    const rawValue = window.sessionStorage.getItem(key);
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(rawValue);
+
+    if (!parsedValue.expiresAt || parsedValue.expiresAt < Date.now()) {
+      window.sessionStorage.removeItem(key);
+      return null;
+    }
+
+    return parsedValue.data;
+  } catch (_error) {
+    return null;
+  }
+};
+
+const writeCache = (key, data) => {
+  try {
+    window.sessionStorage.setItem(
+      key,
+      JSON.stringify({
+        data,
+        expiresAt: Date.now() + CACHE_TTL_MS
+      })
+    );
+  } catch (_error) {
+    // Ignore cache write failures and keep the normal flow.
+  }
+};
+
+const removeCache = (key) => {
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch (_error) {
+    // Ignore cache cleanup failures.
+  }
+};
+
 export default function DashboardPage() {
   const currentYear = new Date().getFullYear();
   const { user, logout, http } = useAuth();
@@ -23,17 +70,44 @@ export default function DashboardPage() {
   const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
   const [isLoadingMonth, setIsLoadingMonth] = useState(true);
   const isEditableMonth = selectedMonth?.isEditable ?? true;
+  const userId = user?.id || "anonymous";
+
+  const getYearCacheKey = (selectedYear) => buildCacheKey(userId, `year:${selectedYear}`);
+  const getMonthCacheKey = (selectedYear, selectedMonthValue) =>
+    buildCacheKey(userId, `month:${selectedYear}:${selectedMonthValue}`);
+  const recipientCacheKey = buildCacheKey(userId, "recipient-emails");
+
+  const hydrateYearState = (data) => {
+    setMonths(data);
+    setSelectedMonth((current) => {
+      const preferredMonth = current?.month || new Date().getMonth() + 1;
+      return data.find((item) => item.month === preferredMonth) || data[0];
+    });
+  };
+
+  const invalidateMonthCaches = (selectedYear = year, selectedMonthValue = selectedMonth?.month) => {
+    removeCache(getYearCacheKey(selectedYear));
+
+    if (selectedMonthValue) {
+      removeCache(getMonthCacheKey(selectedYear, selectedMonthValue));
+    }
+  };
 
   const loadYear = async (selectedYear = year) => {
     setIsLoadingMonth(true);
     try {
       const safeYear = Math.min(selectedYear, currentYear);
+      const cacheKey = getYearCacheKey(safeYear);
+      const cachedData = readCache(cacheKey);
+
+      if (cachedData) {
+        hydrateYearState(cachedData);
+        return;
+      }
+
       const { data } = await http.get(`/months?year=${safeYear}`);
-      setMonths(data);
-      setSelectedMonth((current) => {
-        const preferredMonth = current?.month || new Date().getMonth() + 1;
-        return data.find((item) => item.month === preferredMonth) || data[0];
-      });
+      writeCache(cacheKey, data);
+      hydrateYearState(data);
     } finally {
       setIsLoadingMonth(false);
     }
@@ -42,7 +116,18 @@ export default function DashboardPage() {
   const loadMonth = async (selectedYear, selectedMonthValue) => {
     setIsLoadingMonth(true);
     try {
+      const cacheKey = getMonthCacheKey(selectedYear, selectedMonthValue);
+      const cachedData = readCache(cacheKey);
+
+      if (cachedData) {
+        setSelectedMonth(cachedData);
+        setNotes(cachedData.notes || "");
+        setMunicipality(cachedData.municipality || "Chapeco");
+        return;
+      }
+
       const { data } = await http.get(`/months/${selectedYear}/${selectedMonthValue}`);
+      writeCache(cacheKey, data);
       setSelectedMonth(data);
       setNotes(data.notes || "");
       setMunicipality(data.municipality || "Chapeco");
@@ -52,7 +137,15 @@ export default function DashboardPage() {
   };
 
   const loadRecipientEmails = async () => {
+    const cachedData = readCache(recipientCacheKey);
+
+    if (cachedData) {
+      setRecipientEmails(cachedData);
+      return;
+    }
+
     const { data } = await http.get("/recipient-emails");
+    writeCache(recipientCacheKey, data);
     setRecipientEmails(data);
   };
 
@@ -87,6 +180,7 @@ export default function DashboardPage() {
   }, [statusMessage]);
 
   const refreshMonthAndGrid = async (targetMonth = selectedMonth?.month) => {
+    invalidateMonthCaches(year, targetMonth);
     await loadYear(year);
     await loadMonth(year, targetMonth);
   };
@@ -205,6 +299,7 @@ export default function DashboardPage() {
       const nextRecipients = [...recipientEmails, data].sort((a, b) =>
         a.label.localeCompare(b.label)
       );
+      writeCache(recipientCacheKey, nextRecipients);
       setRecipientEmails(nextRecipients);
       setSelectedRecipientId(String(data.id));
       setReportEmail(data.email);
@@ -225,9 +320,11 @@ export default function DashboardPage() {
 
     try {
       await http.delete(`/recipient-emails/${selectedRecipientId}`);
-      setRecipientEmails((current) =>
-        current.filter((recipient) => String(recipient.id) !== selectedRecipientId)
+      const nextRecipients = recipientEmails.filter(
+        (recipient) => String(recipient.id) !== selectedRecipientId
       );
+      writeCache(recipientCacheKey, nextRecipients);
+      setRecipientEmails(nextRecipients);
       setSelectedRecipientId("");
       setReportEmail("");
       setStatusMessage({ type: "success", text: "E-mail de destino removido com sucesso." });
