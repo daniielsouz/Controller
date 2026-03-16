@@ -1,4 +1,21 @@
-import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
+import fs from "fs";
+
+const resolveLocalChromePath = () => {
+  const candidates = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium"
+  ].filter(Boolean);
+
+  return candidates.find((candidate) => fs.existsSync(candidate));
+};
 
 const formatMoney = (value) =>
   Number(value || 0).toLocaleString("pt-BR", {
@@ -295,9 +312,24 @@ const buildHtml = ({ user, monthData }) => {
 };
 
 export const generateMonthlyPdf = async ({ user, monthData }) => {
+  const isVercel = Boolean(process.env.VERCEL);
+  const executablePath = isVercel
+    ? await chromium.executablePath()
+    : resolveLocalChromePath();
+
+  if (!executablePath) {
+    throw new Error(
+      "Nenhum executavel do Chrome foi encontrado para gerar o PDF neste ambiente."
+    );
+  }
+
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    args: isVercel
+      ? chromium.args
+      : ["--no-sandbox", "--disable-setuid-sandbox"],
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: isVercel ? chromium.headless : true
   });
 
   try {

@@ -8,6 +8,7 @@
     "start": "node src/server.js"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^138.0.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
@@ -18,7 +19,7 @@
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.15",
     "pdfkit": "^0.15.0",
-    "puppeteer": "^24.39.1",
+    "puppeteer-core": "^24.39.1",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
