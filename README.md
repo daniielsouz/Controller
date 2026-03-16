@@ -93,6 +93,9 @@ CREATE DATABASE controller_financeiro;
 
 O projeto usa `sequelize.sync({ alter: true })`, entao o backend cria ou ajusta as tabelas quando sobe.
 
+Quando o banco estiver em um provedor como Aiven, a conexao pode exigir SSL.
+Nesse caso, a variavel `DB_SSL=true` entra no ambiente do backend.
+
 As tabelas principais sao:
 
 - `users`
