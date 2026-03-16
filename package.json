@@ -1,0 +1,16 @@
+{
+  "name": "controller-financeiro",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "dev": "powershell -Command \"Start-Process powershell -ArgumentList '-NoExit','-Command','cd server; npm run dev'; Start-Process powershell -ArgumentList '-NoExit','-Command','cd client; npm run dev'\"",
+    "build": "npm --workspace client run build"
+  }
+}
