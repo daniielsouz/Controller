@@ -338,6 +338,12 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
+      {statusMessage.text && (
+        <div className={`status-banner ${statusMessage.type === "error" ? "error" : "success"}`}>
+          {statusMessage.text}
+        </div>
+      )}
+
       <header className="topbar">
         <div>
           <p className="eyebrow">Controle Financeiro</p>
@@ -380,11 +386,6 @@ export default function DashboardPage() {
               onDelete={handleDelete}
               canEdit={isEditableMonth}
             />
-            {statusMessage.text && (
-              <p className={`${statusMessage.type === "error" ? "error" : "success"} inline-message`}>
-                {statusMessage.text}
-              </p>
-            )}
           </div>
 
           <div className="summary-column">
