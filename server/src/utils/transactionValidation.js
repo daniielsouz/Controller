@@ -5,6 +5,16 @@ const isValidDateString = (value) =>
   /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) &&
   !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
 
+const isFutureDate = (value) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const parsedDate = new Date(`${value}T00:00:00`);
+  parsedDate.setHours(0, 0, 0, 0);
+
+  return parsedDate.getTime() > today.getTime();
+};
+
 export const validateTransactionPayload = ({
   year,
   month,
@@ -25,6 +35,10 @@ export const validateTransactionPayload = ({
 
   if (!isValidDateString(purchaseDate)) {
     return "Data da compra invalida.";
+  }
+
+  if (isFutureDate(purchaseDate)) {
+    return "A data da compra nao pode ser futura.";
   }
 
   const parsedDate = new Date(`${purchaseDate}T00:00:00`);
@@ -58,6 +72,14 @@ export const validateTransactionPayload = ({
 
   if (category === "depositos" && String(invoiceNumber || "").trim()) {
     return "Depositos nao devem ter numero da nota.";
+  }
+
+  if (
+    String(invoiceNumber || "").trim() &&
+    String(invoiceNumber).trim() !== "Recibo" &&
+    !/^\d+$/.test(String(invoiceNumber).trim())
+  ) {
+    return "Numero da nota deve conter apenas numeros.";
   }
 
   return null;

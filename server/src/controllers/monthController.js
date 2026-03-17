@@ -118,7 +118,7 @@ export const sendMonthReport = async (req, res) => {
 
   return res.json({
     message: `Arquivo PDF enviado com sucesso${
-      receiptAttachments.length ? ` com ${receiptAttachments.length} comprovante(s) em anexo.` : "."
+      receiptAttachments.length ? ` com ${receiptAttachments.length} comprovante(s) para consulta.` : "."
     }`
   });
 };

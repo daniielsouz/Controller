@@ -2,16 +2,39 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import { randomUUID } from "crypto";
+import sharp from "sharp";
 import { cloudinary, hasCloudinaryConfig } from "../config/cloudinary.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.resolve(__dirname, "../../uploads");
+const COMPRESSED_IMAGE_EXTENSION = ".jpg";
+
+const compressReceiptImage = async (file) => {
+  const compressedBuffer = await sharp(file.buffer)
+    .rotate()
+    .resize({
+      width: 1600,
+      height: 1600,
+      fit: "inside",
+      withoutEnlargement: true
+    })
+    .jpeg({
+      quality: 72,
+      mozjpeg: true
+    })
+    .toBuffer();
+
+  return {
+    buffer: compressedBuffer,
+    extension: COMPRESSED_IMAGE_EXTENSION
+  };
+};
 
 const uploadToCloudinary = (fileBuffer, folder) =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder },
+      { folder, format: "jpg" },
       (error, result) => {
         if (error) {
           reject(error);
@@ -33,17 +56,18 @@ export const uploadReceipt = async (file) => {
     return null;
   }
 
+  const { buffer, extension } = await compressReceiptImage(file);
+
   if (hasCloudinaryConfig) {
-    return uploadToCloudinary(file.buffer, "controller-financeiro/receipts");
+    return uploadToCloudinary(buffer, "controller-financeiro/receipts");
   }
 
   await fs.mkdir(uploadsDir, { recursive: true });
 
-  const extension = path.extname(file.originalname) || ".jpg";
   const filename = `${randomUUID()}${extension}`;
   const filepath = path.join(uploadsDir, filename);
 
-  await fs.writeFile(filepath, file.buffer);
+  await fs.writeFile(filepath, buffer);
 
   return {
     url: `/uploads/${filename}`,
@@ -152,13 +176,15 @@ export const buildReceiptEmailAttachments = (transactions = []) => {
       if (transaction.receiptUrl.startsWith("/uploads/")) {
         return {
           filename,
-          path: path.resolve(uploadsDir, transaction.receiptUrl.replace("/uploads/", ""))
+          path: path.resolve(uploadsDir, transaction.receiptUrl.replace("/uploads/", "")),
+          attachmentType: "local"
         };
       }
 
       return {
         filename,
-        href: transaction.receiptUrl
+        href: transaction.receiptUrl,
+        attachmentType: "remote-link"
       };
     });
 };

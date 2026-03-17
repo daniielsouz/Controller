@@ -33,6 +33,8 @@ const parseCurrencyInput = (value) => {
   return normalized || "";
 };
 
+const getTodayDateInputValue = () => new Date().toISOString().slice(0, 10);
+
 export default function TransactionForm({
   year,
   month,
@@ -42,10 +44,12 @@ export default function TransactionForm({
   disabled = false,
   isSubmitting = false
 }) {
+  const todayDate = getTodayDateInputValue();
   const [form, setForm] = useState(initialForm);
   const [receipt, setReceipt] = useState(null);
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+  const isReceiptDocument = form.invoiceNumber === "Recibo";
 
   useEffect(() => {
     if (editingTransaction) {
@@ -66,9 +70,11 @@ export default function TransactionForm({
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => {
+      const normalizedValue =
+        name === "invoiceNumber" ? String(value || "").replace(/\D/g, "") : value;
       const next = {
         ...current,
-        [name]: name === "amount" ? formatCurrencyInput(value) : value
+        [name]: name === "amount" ? formatCurrencyInput(value) : normalizedValue
       };
 
       if (name === "category" && value === "depositos") {
@@ -91,6 +97,15 @@ export default function TransactionForm({
 
       return next;
     });
+  };
+
+  const handleInvoiceDocumentTypeChange = (event) => {
+    const { value } = event.target;
+
+    setForm((current) => ({
+      ...current,
+      invoiceNumber: value === "recibo" ? "Recibo" : current.invoiceNumber === "Recibo" ? "" : current.invoiceNumber
+    }));
   };
 
   const handleSubmit = async (event) => {
@@ -136,7 +151,15 @@ export default function TransactionForm({
       </label>
       <label>
         Data
-        <input name="purchaseDate" type="date" value={form.purchaseDate} onChange={handleChange} required disabled={disabled} />
+        <input
+          name="purchaseDate"
+          type="date"
+          max={todayDate}
+          value={form.purchaseDate}
+          onChange={handleChange}
+          required
+          disabled={disabled}
+        />
       </label>
       <label>
         Descricao
@@ -146,10 +169,38 @@ export default function TransactionForm({
         Numero da nota
         <input
           name="invoiceNumber"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={form.invoiceNumber}
           onChange={handleChange}
-          disabled={disabled || form.category === "depositos"}
+          disabled={disabled || form.category === "depositos" || isReceiptDocument}
         />
+        {form.category !== "depositos" && (
+          <div className="form-actions">
+            <label className="muted">
+              <input
+                type="radio"
+                name="invoiceDocumentType"
+                value="nota"
+                checked={!isReceiptDocument}
+                onChange={handleInvoiceDocumentTypeChange}
+                disabled={disabled}
+              />
+              {" "}Numero da nota
+            </label>
+            <label className="muted">
+              <input
+                type="radio"
+                name="invoiceDocumentType"
+                value="recibo"
+                checked={isReceiptDocument}
+                onChange={handleInvoiceDocumentTypeChange}
+                disabled={disabled}
+              />
+              {" "}Recibo
+            </label>
+          </div>
+        )}
       </label>
       <label>
         Tipo de movimento
