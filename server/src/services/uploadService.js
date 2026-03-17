@@ -111,22 +111,6 @@ const formatDateForFilename = (value) => {
   return `${day}-${month}-${year}`;
 };
 
-const formatCategoryLabel = (value) => {
-  if (value === "depositos") {
-    return "depositos";
-  }
-
-  if (value === "veiculos") {
-    return "veiculos";
-  }
-
-  if (value === "outras-despesas") {
-    return "outras-despesas";
-  }
-
-  return sanitizeFilename(value);
-};
-
 const extractExtension = (transaction) => {
   const candidates = [transaction.receiptUrl, transaction.receiptPublicId].filter(Boolean);
 
@@ -160,8 +144,8 @@ export const buildReceiptEmailAttachments = (transactions = []) => {
       const extension = extractExtension(transaction);
       const datePart = formatDateForFilename(transaction.purchaseDate);
       const invoicePart = sanitizeFilename(transaction.invoiceNumber) || `sem-nota-${transaction.id}`;
-      const categoryPart = formatCategoryLabel(transaction.category) || "sem-categoria";
-      const baseName = [datePart, invoicePart, categoryPart].filter(Boolean).join(" - ");
+      const descriptionPart = sanitizeFilename(transaction.description) || "sem-descricao";
+      const baseName = [datePart, invoicePart, descriptionPart].filter(Boolean).join(" - ");
 
       let filename = `${baseName}${extension}`;
       let suffix = 2;
@@ -177,14 +161,18 @@ export const buildReceiptEmailAttachments = (transactions = []) => {
         return {
           filename,
           path: path.resolve(uploadsDir, transaction.receiptUrl.replace("/uploads/", "")),
-          attachmentType: "local"
+          attachmentType: "local",
+          category: transaction.category,
+          purchaseDate: transaction.purchaseDate
         };
       }
 
       return {
         filename,
         href: transaction.receiptUrl,
-        attachmentType: "remote-link"
+        attachmentType: "remote-link",
+        category: transaction.category,
+        purchaseDate: transaction.purchaseDate
       };
     });
 };
