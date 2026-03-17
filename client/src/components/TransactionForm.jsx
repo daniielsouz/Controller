@@ -44,7 +44,8 @@ export default function TransactionForm({
 }) {
   const [form, setForm] = useState(initialForm);
   const [receipt, setReceipt] = useState(null);
-  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   useEffect(() => {
     if (editingTransaction) {
@@ -113,8 +114,11 @@ export default function TransactionForm({
 
     setForm(initialForm);
     setReceipt(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = "";
+    }
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = "";
     }
   };
 
@@ -149,17 +153,32 @@ export default function TransactionForm({
       </label>
       <label>
         Tipo de movimento
-        <select
-          name="type"
-          value={form.type}
-          onChange={handleChange}
-          disabled={disabled || form.category === "depositos"}
-          required={form.category !== "depositos"}
-        >
-          <option value="">Selecione a opcao</option>
-          <option value="debito">Debito</option>
-          <option value="credito">Credito</option>
-        </select>
+        <div className="form-actions">
+          <label className="muted">
+            <input
+              type="radio"
+              name="type"
+              value="debito"
+              checked={form.type === "debito"}
+              onChange={handleChange}
+              disabled={disabled || form.category === "depositos"}
+              required={form.category !== "depositos"}
+            />
+            {" "}Debito
+          </label>
+          <label className="muted">
+            <input
+              type="radio"
+              name="type"
+              value="credito"
+              checked={form.type === "credito"}
+              onChange={handleChange}
+              disabled={disabled || form.category === "depositos"}
+              required={form.category !== "depositos"}
+            />
+            {" "}Credito
+          </label>
+        </div>
       </label>
       <label>
         Valor
@@ -177,13 +196,41 @@ export default function TransactionForm({
       <label>
         Foto da nota
         <input
-          ref={fileInputRef}
+          ref={cameraInputRef}
           type="file"
           accept="image/*"
           capture="environment"
           disabled={disabled}
           onChange={(event) => setReceipt(event.target.files?.[0] || null)}
+          hidden
         />
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
+          disabled={disabled}
+          onChange={(event) => setReceipt(event.target.files?.[0] || null)}
+          hidden
+        />
+        <div className="form-actions">
+          <button
+            className="ghost"
+            type="button"
+            disabled={disabled}
+            onClick={() => cameraInputRef.current?.click()}
+          >
+            Tirar foto
+          </button>
+          <button
+            className="ghost"
+            type="button"
+            disabled={disabled}
+            onClick={() => galleryInputRef.current?.click()}
+          >
+            Escolher arquivo
+          </button>
+        </div>
+        {receipt && <p className="muted">{receipt.name}</p>}
       </label>
       {disabled && (
         <p className="muted">Este mes ainda nao pode ser editado. A edicao sera liberada quando o mes chegar.</p>
