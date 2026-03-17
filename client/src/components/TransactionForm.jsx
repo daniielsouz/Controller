@@ -9,6 +9,30 @@ const initialForm = {
   amount: ""
 };
 
+const formatCurrencyInput = (value) => {
+  const digits = String(value || "").replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  const amount = Number(digits) / 100;
+
+  return amount.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+const parseCurrencyInput = (value) => {
+  const normalized = String(value || "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .trim();
+
+  return normalized || "";
+};
+
 export default function TransactionForm({
   year,
   month,
@@ -30,7 +54,7 @@ export default function TransactionForm({
         invoiceNumber: editingTransaction.invoiceNumber || "",
         category: editingTransaction.category,
         type: editingTransaction.type,
-        amount: editingTransaction.amount
+        amount: formatCurrencyInput(editingTransaction.amount)
       });
     } else {
       setForm(initialForm);
@@ -41,7 +65,10 @@ export default function TransactionForm({
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => {
-      const next = { ...current, [name]: value };
+      const next = {
+        ...current,
+        [name]: name === "amount" ? formatCurrencyInput(value) : value
+      };
 
       if (name === "category" && value === "depositos") {
         next.type = "deposito";
@@ -75,7 +102,9 @@ export default function TransactionForm({
     const payload = new FormData();
     payload.append("year", year);
     payload.append("month", month);
-    Object.entries(form).forEach(([key, value]) => payload.append(key, value));
+    Object.entries(form).forEach(([key, value]) =>
+      payload.append(key, key === "amount" ? parseCurrencyInput(value) : value)
+    );
     if (receipt) {
       payload.append("receipt", receipt);
     }
@@ -134,7 +163,16 @@ export default function TransactionForm({
       </label>
       <label>
         Valor
-        <input name="amount" type="number" min="0" step="0.01" value={form.amount} onChange={handleChange} required disabled={disabled} />
+        <input
+          name="amount"
+          type="text"
+          inputMode="decimal"
+          placeholder="0,00"
+          value={form.amount}
+          onChange={handleChange}
+          required
+          disabled={disabled}
+        />
       </label>
       <label>
         Foto da nota
