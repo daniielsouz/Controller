@@ -47,9 +47,20 @@ export default function TransactionForm({
   const todayDate = getTodayDateInputValue();
   const [form, setForm] = useState(initialForm);
   const [receipt, setReceipt] = useState(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const isReceiptDocument = form.invoiceNumber === "Recibo";
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(pointer: coarse), (max-width: 768px)");
+    const syncDeviceType = () => setIsMobileDevice(mediaQuery.matches);
+
+    syncDeviceType();
+    mediaQuery.addEventListener("change", syncDeviceType);
+
+    return () => mediaQuery.removeEventListener("change", syncDeviceType);
+  }, []);
 
   useEffect(() => {
     if (editingTransaction) {
@@ -264,14 +275,16 @@ export default function TransactionForm({
           hidden
         />
         <div className="form-actions">
-          <button
-            className="ghost"
-            type="button"
-            disabled={disabled}
-            onClick={() => cameraInputRef.current?.click()}
-          >
-            Tirar foto
-          </button>
+          {isMobileDevice && (
+            <button
+              className="ghost"
+              type="button"
+              disabled={disabled}
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              Tirar foto
+            </button>
+          )}
           <button
             className="ghost"
             type="button"
