@@ -5,7 +5,7 @@ export default function AuthCard({ title, subtitle, alternateText, alternateLink
     <div className="auth-shell">
       <div className="auth-panel">
         <div>
-          <p className="eyebrow">Controller Financeiro</p>
+          <p className="eyebrow">Grano</p>
           <h1>{title}</h1>
           <p className="muted">{subtitle}</p>
         </div>

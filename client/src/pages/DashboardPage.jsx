@@ -346,7 +346,7 @@ export default function DashboardPage() {
 
       <header className="topbar">
         <div>
-          <p className="eyebrow">Controle Financeiro</p>
+          <p className="eyebrow">Grano</p>
           <h1>Planilha mensal</h1>
           <p className="muted">Visual de planilha com abas mensais e totais do periodo.</p>
         </div>
