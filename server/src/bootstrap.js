@@ -4,7 +4,10 @@ let bootstrapPromise;
 
 export const ensureBootstrap = async () => {
   if (!bootstrapPromise) {
-    bootstrapPromise = sequelize.sync({ alter: true });
+    const shouldSyncSchema =
+      process.env.NODE_ENV !== "production" && !process.env.VERCEL;
+
+    bootstrapPromise = shouldSyncSchema ? sequelize.sync({ alter: true }) : sequelize.authenticate();
   }
 
   return bootstrapPromise;
