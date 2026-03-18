@@ -13,7 +13,7 @@ dotenv.config({
   path: path.resolve(__dirname, "../.env")
 });
 
-export const app = express();
+const app = express();
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
@@ -24,14 +24,53 @@ const allowedOrigins = [
   .map((value) => value.trim())
   .filter(Boolean);
 
+const allowedHostnames = allowedOrigins
+  .map((origin) => {
+    try {
+      return new URL(origin).hostname;
+    } catch (_error) {
+      return "";
+    }
+  })
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin || allowedOrigins.length === 0) {
+    return true;
+  }
+
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(origin);
+
+    if (allowedHostnames.includes(hostname)) {
+      return true;
+    }
+
+    return (
+      hostname.endsWith(".vercel.app") &&
+      allowedHostnames.some(
+        (allowedHostname) =>
+          allowedHostname.endsWith(".vercel.app") &&
+          hostname.startsWith(allowedHostname.split(".vercel.app")[0])
+      )
+    );
+  } catch (_error) {
+    return false;
+  }
+};
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
 
-      return callback(new Error("Origem nao autorizada pelo CORS."));
+      return callback(null, false);
     },
     credentials: true
   })
@@ -55,3 +94,6 @@ app.use((error, _req, res, _next) =>
     message: error.message || "Erro interno do servidor."
   })
 );
+
+export { app };
+export default app;
