@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { sequelize } from "./models/index.js";
 import routes from "./routes/index.js";
+import { logError } from "./utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -99,15 +100,27 @@ app.get("/health", async (_req, res) => {
     await sequelize.authenticate();
     return res.json({ ok: true });
   } catch (error) {
+    logError("health", "Falha no healthcheck do banco.", error, {
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT
+    });
+
     return res.status(500).json({ ok: false, error: error.message });
   }
 });
 
-app.use((error, _req, res, _next) =>
-  res.status(500).json({
+app.use((error, req, res, _next) => {
+  logError("http", "Erro interno na requisicao.", error, {
+    method: req.method,
+    path: req.originalUrl,
+    origin: req.headers.origin
+  });
+
+  return res.status(500).json({
     message: error.message || "Erro interno do servidor."
-  })
-);
+  });
+});
 
 export { app };
 export default app;
