@@ -80,6 +80,18 @@ app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
+
+app.get("/", (_req, res) =>
+  res.json({
+    ok: true,
+    service: "controller-server",
+    health: "/health",
+    api: "/api"
+  })
+);
+
+app.get(["/favicon.ico", "/favicon.png"], (_req, res) => res.status(204).end());
+
 app.use("/api", routes);
 
 app.get("/health", async (_req, res) => {
