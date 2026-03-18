@@ -7,6 +7,7 @@ export default function LoginPage() {
   const { token, loading, saveAuth, http } = useAuth();
   const [form, setForm] = useState({ email: "", password: "", rememberMe: false });
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   if (loading) {
     return null;
@@ -18,12 +19,27 @@ export default function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (submitting) {
+      return;
+    }
+
+    setError("");
+    setSubmitting(true);
+
     try {
       const { data } = await http.post("/auth/login", form);
       saveAuth(data);
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Falha no login.");
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleChange = (field) => (event) => {
+    const value = field === "rememberMe" ? event.target.checked : event.target.value;
+    setError("");
+    setForm((current) => ({ ...current, [field]: value }));
   };
 
   return (
@@ -39,8 +55,10 @@ export default function LoginPage() {
           <input
             type="email"
             value={form.email}
-            onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+            onChange={handleChange("email")}
             required
+            autoComplete="email"
+            disabled={submitting}
           />
         </label>
         <label>
@@ -48,23 +66,24 @@ export default function LoginPage() {
           <input
             type="password"
             value={form.password}
-            onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
+            onChange={handleChange("password")}
             required
+            autoComplete="current-password"
+            disabled={submitting}
           />
         </label>
         <label className="checkbox-field">
           <input
             type="checkbox"
             checked={form.rememberMe}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, rememberMe: event.target.checked }))
-            }
+            onChange={handleChange("rememberMe")}
+            disabled={submitting}
           />
           <span>Lembre de mim por 30 dias</span>
         </label>
         {error && <p className="error">{error}</p>}
-        <button className="primary" type="submit">
-          Entrar
+        <button className="primary" type="submit" disabled={submitting}>
+          {submitting ? "Entrando..." : "Entrar"}
         </button>
       </form>
 

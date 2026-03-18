@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const { token, saveAuth, http } = useAuth();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   if (token) {
     return <Navigate to="/dashboard" replace />;
@@ -14,12 +15,26 @@ export default function RegisterPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (submitting) {
+      return;
+    }
+
+    setError("");
+    setSubmitting(true);
+
     try {
       const { data } = await http.post("/auth/register", form);
       saveAuth(data);
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Falha no cadastro.");
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleChange = (field) => (event) => {
+    setError("");
+    setForm((current) => ({ ...current, [field]: event.target.value }));
   };
 
   return (
@@ -34,8 +49,10 @@ export default function RegisterPage() {
           Nome
           <input
             value={form.name}
-            onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+            onChange={handleChange("name")}
             required
+            autoComplete="name"
+            disabled={submitting}
           />
         </label>
         <label>
@@ -43,8 +60,10 @@ export default function RegisterPage() {
           <input
             type="email"
             value={form.email}
-            onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+            onChange={handleChange("email")}
             required
+            autoComplete="email"
+            disabled={submitting}
           />
         </label>
         <label>
@@ -52,13 +71,15 @@ export default function RegisterPage() {
           <input
             type="password"
             value={form.password}
-            onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
+            onChange={handleChange("password")}
             required
+            autoComplete="new-password"
+            disabled={submitting}
           />
         </label>
         {error && <p className="error">{error}</p>}
-        <button className="primary" type="submit">
-          Cadastrar
+        <button className="primary" type="submit" disabled={submitting}>
+          {submitting ? "Cadastrando..." : "Cadastrar"}
         </button>
       </form>
     </AuthCard>
