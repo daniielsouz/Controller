@@ -5,8 +5,7 @@ let bootstrapPromise;
 
 export const ensureBootstrap = async () => {
   if (!bootstrapPromise) {
-    const shouldSyncSchema =
-      process.env.NODE_ENV !== "production" && !process.env.VERCEL;
+    const shouldSyncSchema = String(process.env.ALLOW_SCHEMA_SYNC || "false").toLowerCase() === "true";
 
     const mode = shouldSyncSchema ? "sync" : "authenticate";
     logInfo("bootstrap", "Inicializando banco de dados.", {
@@ -16,10 +15,9 @@ export const ensureBootstrap = async () => {
       port: process.env.DB_PORT
     });
 
-    bootstrapPromise = (shouldSyncSchema
-      ? sequelize.sync({ alter: true })
-      : sequelize.authenticate()
-    ).catch((error) => {
+    const bootstrapWork = shouldSyncSchema ? sequelize.sync({ alter: true }) : sequelize.authenticate();
+
+    bootstrapPromise = bootstrapWork.catch((error) => {
       bootstrapPromise = undefined;
       logError("bootstrap", "Falha ao inicializar banco de dados.", error, {
         mode,

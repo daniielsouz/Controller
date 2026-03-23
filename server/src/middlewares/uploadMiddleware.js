@@ -8,8 +8,11 @@ export const upload = multer({
     fileSize: 5 * 1024 * 1024
   },
   fileFilter: (_req, file, callback) => {
-    if (!file.mimetype?.startsWith("image/")) {
-      callback(new Error("Envie apenas arquivos de imagem para o comprovante."));
+    if (
+      !file.mimetype?.startsWith("image/") &&
+      file.mimetype !== "application/pdf"
+    ) {
+      callback(new Error("Envie apenas arquivos de imagem ou PDF para o comprovante."));
       return;
     }
 

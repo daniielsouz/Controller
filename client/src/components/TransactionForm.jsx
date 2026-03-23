@@ -260,7 +260,7 @@ export default function TransactionForm({
         <input
           ref={cameraInputRef}
           type="file"
-          accept="image/*"
+        accept="image/*,application/pdf"
           capture="environment"
           disabled={disabled}
           onChange={(event) => setReceipt(event.target.files?.[0] || null)}
@@ -269,7 +269,7 @@ export default function TransactionForm({
         <input
           ref={galleryInputRef}
           type="file"
-          accept="image/*"
+        accept="image/*,application/pdf"
           disabled={disabled}
           onChange={(event) => setReceipt(event.target.files?.[0] || null)}
           hidden
@@ -296,9 +296,6 @@ export default function TransactionForm({
         </div>
         {receipt && <p className="muted">{receipt.name}</p>}
       </label>
-      {disabled && (
-        <p className="muted">Este mes ainda nao pode ser editado. A edicao sera liberada quando o mes chegar.</p>
-      )}
       <div className="form-actions">
         <button className="primary" type="submit" disabled={disabled}>
           {isSubmitting

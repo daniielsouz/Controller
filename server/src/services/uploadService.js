@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.resolve(__dirname, "../../uploads");
 const COMPRESSED_IMAGE_EXTENSION = ".jpg";
 
+const isImageMimeType = (mimeType) => mimeType?.startsWith("image/");
+const getResourceType = (mimeType) => (isImageMimeType(mimeType) ? "image" : "raw");
+
 const compressReceiptImage = async (file) => {
   const compressedBuffer = await sharp(file.buffer)
     .rotate()
@@ -31,10 +34,26 @@ const compressReceiptImage = async (file) => {
   };
 };
 
-const uploadToCloudinary = (fileBuffer, folder) =>
+const getExtensionFromFilename = (file) => {
+  const extracted = path.extname(file.originalname || "");
+  return extracted || ".pdf";
+};
+
+const prepareReceiptFile = async (file) => {
+  if (isImageMimeType(file.mimetype)) {
+    return compressReceiptImage(file);
+  }
+
+  return {
+    buffer: file.buffer,
+    extension: getExtensionFromFilename(file)
+  };
+};
+
+const uploadToCloudinary = (fileBuffer, folder, options = {}) =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, format: "jpg" },
+      { folder, ...options },
       (error, result) => {
         if (error) {
           reject(error);
@@ -56,10 +75,23 @@ export const uploadReceipt = async (file) => {
     return null;
   }
 
-  const { buffer, extension } = await compressReceiptImage(file);
+  const { buffer, extension } = await prepareReceiptFile(file);
+  const mimeType = file.mimetype;
+  const resourceType = getResourceType(mimeType);
+  const format = resourceType === "image" ? "jpg" : extension.replace(".", "") || "pdf";
 
   if (hasCloudinaryConfig) {
-    return uploadToCloudinary(buffer, "controller-financeiro/receipts");
+    const result = await uploadToCloudinary(buffer, "controller-financeiro/receipts", {
+      resource_type: resourceType,
+      format,
+      type: "upload"
+    });
+
+    return {
+      ...result,
+      mimeType,
+      resourceType
+    };
   }
 
   await fs.mkdir(uploadsDir, { recursive: true });
