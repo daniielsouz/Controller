@@ -86,8 +86,8 @@ export const sendMonthlyReportEmail = async ({
     from: process.env.SMTP_FROM,
     to,
     subject: `[Controle Financeiro] - ${userName || "Responsavel"} - ${monthLabel}`,
-    text: `Segue em anexo o arquivo ${extensionLabel} do controle financeiro referente a ${monthLabel}.${remoteLinksText}`,
-    html: `<p>Segue em anexo o arquivo <strong>${extensionLabel}</strong> do controle financeiro referente a <strong>${monthLabel}</strong>.</p>${remoteLinksHtml}`,
+    text: `Segue em anexo o arquivo ${extensionLabel} do controle financeiro referente a ${monthLabel}.${remoteLinksText}\n\nATENCAO: as imagens das notas ficam salvas por 60 dias e sao apagadas automaticamente no dia 1º de cada mes.`,
+    html: `<p>Segue em anexo o arquivo <strong>${extensionLabel}</strong> do controle financeiro referente a <strong>${monthLabel}</strong>.</p>${remoteLinksHtml}<p><strong>ATENCAO:</strong> as imagens das notas ficam salvas por 60 dias e sao apagadas automaticamente no dia 1º de cada mes.</p>`,
     attachments: [
       {
         filename,
