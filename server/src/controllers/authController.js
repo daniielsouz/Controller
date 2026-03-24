@@ -46,3 +46,31 @@ export const login = async (req, res) => {
 
 export const me = async (req, res) =>
   res.json(authResponse(req.user, Boolean(req.auth?.rememberMe)));
+
+export const updateProfile = async (req, res) => {
+  const { name, email, password } = req.body;
+  const user = req.user;
+
+  if (!name?.trim() || !email?.trim()) {
+    return res.status(400).json({ message: "Nome e e-mail sÃ£o obrigatÃ³rios." });
+  }
+
+  if (email.trim() !== user.email) {
+    const existingUser = await User.findOne({ where: { email: email.trim() } });
+
+    if (existingUser) {
+      return res.status(409).json({ message: "E-mail jÃ¡ cadastrado." });
+    }
+  }
+
+  user.name = name.trim();
+  user.email = email.trim();
+
+  if (password) {
+    user.passwordHash = password;
+  }
+
+  await user.save();
+
+  return res.json(authResponse(user, Boolean(req.auth?.rememberMe)));
+};

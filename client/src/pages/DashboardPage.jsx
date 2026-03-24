@@ -54,7 +54,7 @@ const removeCache = (key) => {
 
 export default function DashboardPage() {
   const currentYear = new Date().getFullYear();
-  const { user, logout, http } = useAuth();
+  const { user, logout, http, updateUser } = useAuth();
   const [year, setYear] = useState(currentYear);
   const [months, setMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(null);
@@ -70,6 +70,14 @@ export default function DashboardPage() {
   const [isSavingTransaction, setIsSavingTransaction] = useState(false);
   const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
   const [isLoadingMonth, setIsLoadingMonth] = useState(true);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [profileStatus, setProfileStatus] = useState({ type: "", text: "" });
+  const [profileForm, setProfileForm] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    password: "",
+    confirmPassword: ""
+  });
   const isEditableMonth = selectedMonth?.isEditable ?? true;
   const userId = user?.id || "anonymous";
 
@@ -269,6 +277,52 @@ export default function DashboardPage() {
         type: "error",
         text: error.response?.data?.message || "Nao foi possivel salvar os dados do mes."
       });
+    }
+  };
+
+  useEffect(() => {
+    setProfileForm((current) => ({
+      ...current,
+      name: user?.name || "",
+      email: user?.email || ""
+    }));
+  }, [user?.name, user?.email]);
+
+  const handleProfileSave = async () => {
+    const trimmedName = profileForm.name?.trim();
+    const trimmedEmail = profileForm.email?.trim();
+
+    if (!trimmedName || !trimmedEmail) {
+      setProfileStatus({ type: "error", text: "Nome e e-mail sÃ£o obrigatÃ³rios." });
+      return;
+    }
+
+    if (profileForm.password && profileForm.password !== profileForm.confirmPassword) {
+      setProfileStatus({ type: "error", text: "As senhas precisam coincidir." });
+      return;
+    }
+
+    setIsUpdatingProfile(true);
+    setProfileStatus({ type: "success", text: "Atualizando perfil..." });
+
+    try {
+      const payload = { name: trimmedName, email: trimmedEmail };
+
+      if (profileForm.password) {
+        payload.password = profileForm.password;
+      }
+
+      const { data } = await http.put("/auth/me", payload);
+      updateUser(data.user);
+      setProfileForm((current) => ({ ...current, password: "", confirmPassword: "" }));
+      setProfileStatus({ type: "success", text: "Perfil atualizado com sucesso." });
+    } catch (error) {
+      setProfileStatus({
+        type: "error",
+        text: error.response?.data?.message || "Falha ao atualizar o perfil."
+      });
+    } finally {
+      setIsUpdatingProfile(false);
     }
   };
 
@@ -502,6 +556,68 @@ export default function DashboardPage() {
               )}
               <button className="ghost" type="button" onClick={handleSaveNotes} disabled={!isEditableMonth}>
                 Salvar dados do mes
+              </button>
+            </div>
+
+            <div className="card form-grid">
+              <h3>Atualizar perfil</h3>
+              {profileStatus.text && (
+                <p className={`inline-message ${profileStatus.type === "error" ? "error" : "success"}`}>
+                  {profileStatus.text}
+                </p>
+              )}
+              <label>
+                Nome
+                <input
+                  value={profileForm.name}
+                  onChange={(event) =>
+                    setProfileForm((current) => ({ ...current, name: event.target.value }))
+                  }
+                  disabled={isUpdatingProfile}
+                />
+              </label>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(event) =>
+                    setProfileForm((current) => ({ ...current, email: event.target.value }))
+                  }
+                  disabled={isUpdatingProfile}
+                />
+              </label>
+              <label>
+                Nova senha
+                <input
+                  type="password"
+                  value={profileForm.password}
+                  onChange={(event) =>
+                    setProfileForm((current) => ({ ...current, password: event.target.value }))
+                  }
+                  placeholder="Deixe em branco para manter a atual"
+                  disabled={isUpdatingProfile}
+                />
+              </label>
+              <label>
+                Confirme a senha
+                <input
+                  type="password"
+                  value={profileForm.confirmPassword}
+                  onChange={(event) =>
+                    setProfileForm((current) => ({ ...current, confirmPassword: event.target.value }))
+                  }
+                  placeholder="Repita a nova senha"
+                  disabled={isUpdatingProfile}
+                />
+              </label>
+              <button
+                className="primary"
+                type="button"
+                disabled={isUpdatingProfile}
+                onClick={handleProfileSave}
+              >
+                {isUpdatingProfile ? "Atualizando..." : "Atualizar perfil"}
               </button>
             </div>
           </div>

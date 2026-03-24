@@ -67,8 +67,12 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem(SESSION_KEY);
   };
 
+  const updateUser = (nextUser) => setUser(nextUser);
+
   return (
-    <AuthContext.Provider value={{ token, user, loading, saveAuth, logout, http }}>
+    <AuthContext.Provider
+      value={{ token, user, loading, saveAuth, logout, http, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
