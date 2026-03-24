@@ -126,20 +126,23 @@ button {
 }
 
 .primary {
-  background: #1f6fb2;
-  color: white;
+  background: linear-gradient(135deg, var(--brand-green), var(--brand-gold));
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 12px 25px rgba(27, 169, 156, 0.35);
 }
 
 .ghost {
-  background: #f2f5f8;
-  color: #24425f;
-  border-color: #ccd5dd;
+  background: #ffffff;
+  color: var(--brand-dark);
+  border-color: rgba(17, 36, 60, 0.15);
 }
 
 .danger {
-  background: #fbebea;
-  color: #8b302c;
-  border-color: #efc4c1;
+  background: #fde9d8;
+  color: #a14b03;
+  border-color: #fbd7a1;
 }
 
 .divider {
@@ -159,8 +162,21 @@ button {
 }
 
 .success {
-  color: #176d40;
+  color: var(--brand-green);
   font-weight: 700;
+}
+
+:root {
+  --brand-blue: #0c2f4b;
+  --brand-dark: #071221;
+  --brand-green: #1ba99c;
+  --brand-gold: #d9b440;
+  --brand-slate: #f5f7fb;
+  --brand-muted: #6a7685;
+}
+
+body {
+  background: var(--brand-slate);
 }
 
 .dashboard {
@@ -174,10 +190,28 @@ button {
   gap: 16px;
   align-items: end;
   margin-bottom: 18px;
+  padding: 16px 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(9, 18, 38, 0.95), rgba(27, 169, 156, 0.95));
+  box-shadow: 0 20px 35px rgba(10, 20, 40, 0.25);
+  color: #fff;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-brand img {
+  height: 56px;
+  width: auto;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
 }
 
 .topbar h1 {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+  font-size: 32px;
 }
 
 .topbar-actions {
@@ -188,7 +222,20 @@ button {
 }
 
 .topbar-actions input {
-  width: 120px;
+  width: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.topbar-actions input,
+.topbar-actions button {
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.topbar-actions input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .month-tabs {
@@ -199,27 +246,42 @@ button {
   margin-bottom: 18px;
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
+  flex-wrap: wrap;
+  justify-content: stretch;
+  border-bottom: 2px solid rgba(17, 36, 60, 0.15);
+  padding-bottom: 12px;
 }
 
 .month-tab {
   min-width: 120px;
   text-align: left;
   padding: 12px 14px;
-  border: 1px solid #bfc9d4;
+  border: 1px solid rgba(17, 36, 60, 0.15);
   border-bottom: 0;
+  flex: 1 1 120px;
   border-radius: 8px 8px 0 0;
-  background: #dce5ee;
+  background: rgba(255, 255, 255, 0.9);
   display: grid;
   gap: 4px;
-  color: #3d4b59;
+  color: #1e2c3c;
   scroll-snap-align: start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .month-tab.active {
-  background: #ffffff;
-  color: #10273b;
+  background: linear-gradient(135deg, rgba(217, 180, 64, 0.95), rgba(27, 169, 156, 0.95));
+  color: #0f1a24;
   position: relative;
   top: 1px;
+  box-shadow: 0 12px 25px rgba(27, 169, 156, 0.2);
+}
+
+.month-tab.active strong {
+  color: #0f1a24;
+}
+
+.month-tab.active span {
+  color: rgba(15, 26, 36, 0.8);
 }
 
 .month-tab span {
@@ -232,6 +294,61 @@ button {
   grid-template-columns: minmax(0, 1fr) 340px;
   gap: 18px;
   align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .content-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .summary-column {
+    order: 2;
+  }
+
+  .sheet-column {
+    order: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .topbar-actions input {
+    width: 140px;
+  }
+
+  .month-tabs {
+    justify-content: flex-start;
+  }
+
+  .month-tab {
+    min-width: unset;
+    width: calc(33.333% - 8px);
+  }
+}
+
+@media (max-width: 650px) {
+  .topbar-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-actions button,
+  .topbar-actions input {
+    width: 100%;
+  }
+
+  .month-tab {
+    width: calc(50% - 6px);
+  }
 }
 
 .sheet-column,
@@ -291,11 +408,18 @@ button {
 }
 
 .debit-head {
-  color: #d11a1a;
+  color: var(--brand-gold);
+  font-weight: 700;
 }
 
 .credit-head {
   color: #0456c8;
+  font-weight: 700;
+}
+
+.financial-sheet-table td.saldo-highlight {
+  background: rgba(217, 180, 64, 0.15);
+  color: #0f1a24;
 }
 
 .financial-sheet-table td.money {

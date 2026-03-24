@@ -98,7 +98,7 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
             <td />
             <td />
             <td />
-            <td className="money debit-head">{formatMoney(month.openingBalance)}</td>
+            <td className="money debit-head saldo-highlight">{formatMoney(month.openingBalance)}</td>
           </tr>
 
           {sections.map((section) => {
@@ -172,7 +172,7 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
             <td colSpan="4">DEPOSITO + SALDO ANTERIOR</td>
             <td className="money" />
             <td className="money" />
-            <td className="money debit-head">{formatMoney(month.openingBalance + month.deposits)}</td>
+            <td className="money debit-head saldo-highlight">{formatMoney(month.openingBalance + month.deposits)}</td>
           </tr>
 
           <tr>

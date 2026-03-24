@@ -3,6 +3,7 @@ import MonthGrid from "../components/MonthGrid.jsx";
 import MonthlySheet from "../components/MonthlySheet.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import logo from "../assets/logo.svg";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -345,10 +346,13 @@ export default function DashboardPage() {
       )}
 
       <header className="topbar">
-        <div>
+        <div className="topbar-brand">
+          <img src={logo} alt="Controller Financeiro" />
+          <div>
           <p className="eyebrow">Grano</p>
-          <h1>Planilha mensal</h1>
-          <p className="muted">Visual de planilha com abas mensais e totais do periodo.</p>
+            <h1>Planilha mensal</h1>
+            <p className="muted">Visual de planilha com abas mensais e totais do periodo.</p>
+          </div>
         </div>
         <div className="topbar-actions">
           <input

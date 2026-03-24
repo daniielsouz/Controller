@@ -1,6 +1,7 @@
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import fs from "fs";
+import path from "path";
 
 const resolveLocalChromePath = () => {
   const candidates = [
@@ -139,8 +140,29 @@ const renderSection = (section) => {
   `;
 };
 
+const logoPath = path.resolve(
+  process.cwd(),
+  "client",
+  "public",
+  "logo.svg"
+);
+
+let logoDataUri = "";
+
+try {
+  const rawLogo = fs.readFileSync(logoPath, "utf8");
+  const trimmed = rawLogo.trim();
+  const base64 = Buffer.from(trimmed, "utf8").toString("base64");
+  logoDataUri = `data:image/svg+xml;base64,${base64}`;
+} catch (_error) {
+  logoDataUri = "";
+}
+
 const buildHtml = ({ user, monthData }) => {
   const sections = buildSections(monthData.transactions || []);
+  const periodLabel =
+    monthData?.year && monthData?.month ? `${String(monthData.month).padStart(2, "0")}/${monthData.year}` : "";
+  const userName = user?.name ? escapeHtml(user.name) : "Controle Financeiro";
 
   return `
     <!doctype html>
@@ -172,6 +194,49 @@ const buildHtml = ({ user, monthData }) => {
 
           .financial-sheet {
             width: 100%;
+            border-collapse: collapse;
+          }
+
+          .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0c2f4b, #16486b);
+            color: #fff;
+            margin-bottom: 16px;
+          }
+
+          .sheet-header img {
+            height: 40px;
+          }
+
+          .brand-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .sheet-period {
+            text-align: right;
+          }
+
+          .sheet-period p {
+            margin: 0;
+            font-size: 10px;
+            opacity: 0.8;
+          }
+
+          .sheet-period strong {
+            font-size: 18px;
+            display: block;
+          }
+
+          .sheet-header h1 {
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 1px;
           }
 
           .financial-sheet-table {
@@ -241,6 +306,19 @@ const buildHtml = ({ user, monthData }) => {
         </style>
       </head>
       <body>
+        <div class="sheet-header">
+          <div class="brand-heading">
+            ${logoDataUri ? `<img src="${logoDataUri}" alt="Grano" />` : ""}
+            <div>
+              <h1>Grano</h1>
+              <p>${userName}</p>
+            </div>
+          </div>
+          <div class="sheet-period">
+            <p>Período</p>
+            <strong>${escapeHtml(periodLabel)}</strong>
+          </div>
+        </div>
         <div class="financial-sheet">
           <table class="financial-sheet-table">
             <colgroup>
