@@ -351,7 +351,7 @@ export default function DashboardPage() {
           <div>
           <p className="eyebrow">Grano</p>
           <h1>{user?.name || "Planilha mensal"}</h1>
-            <p className="muted">Visual de planilha com abas mensais e totais do periodo.</p>
+          <p className="muted">Organize entradas, saídas e saldos por mês com visões claras de totais.</p>
           </div>
         </div>
         <div className="topbar-actions">
