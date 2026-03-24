@@ -350,7 +350,7 @@ export default function DashboardPage() {
           <img src={logo} alt="Controller Financeiro" />
           <div>
           <p className="eyebrow">Grano</p>
-            <h1>Planilha mensal</h1>
+          <h1>{user?.name || "Planilha mensal"}</h1>
             <p className="muted">Visual de planilha com abas mensais e totais do periodo.</p>
           </div>
         </div>
