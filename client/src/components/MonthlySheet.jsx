@@ -189,7 +189,13 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
             <td colSpan="4">DEPOSITO + SALDO ANTERIOR</td>
             <td className="money" />
             <td className="money" />
-            <td className="money debit-head saldo-highlight">{formatMoney(month.openingBalance + month.deposits)}</td>
+            <td
+              className={`money debit-head saldo-highlight ${getBalanceColorClass(
+                month.openingBalance + month.deposits
+              )}`}
+            >
+              {formatMoney(month.openingBalance + month.deposits)}
+            </td>
           </tr>
 
           <tr>
