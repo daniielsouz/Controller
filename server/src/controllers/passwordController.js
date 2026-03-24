@@ -21,8 +21,7 @@ export const requestPasswordReset = async (req, res) => {
   const user = await User.findOne({ where: { email: email.trim() } });
 
   if (!user) {
-    // Não revelamos se o e-mail existe para não facilitar ataques.
-    return res.json({ message: "Se enviou um e-mail com instrucoes para redefinir sua senha." });
+    return res.status(404).json({ message: "Nenhum cadastro encontrado para esse e-mail." });
   }
 
   const token = crypto.randomBytes(32).toString("hex");
