@@ -64,6 +64,17 @@ const buildSections = (transactions) => {
 
 export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = true }) {
   const sections = buildSections(month.transactions || []);
+  const getBalanceColorClass = (value) => {
+    if (Number(value) > 0) {
+      return "balance-positive";
+    }
+
+    if (Number(value) < 0) {
+      return "balance-negative";
+    }
+
+    return "";
+  };
 
   return (
     <div className="financial-sheet">
@@ -98,7 +109,13 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
             <td />
             <td />
             <td />
-            <td className="money debit-head saldo-highlight">{formatMoney(month.openingBalance)}</td>
+            <td
+              className={`money debit-head saldo-highlight ${getBalanceColorClass(
+                month.openingBalance
+              )}`}
+            >
+              {formatMoney(month.openingBalance)}
+            </td>
           </tr>
 
           {sections.map((section) => {
@@ -185,7 +202,11 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
             <td colSpan="4">SALDO FINAL</td>
             <td className="money">{formatMoney(month.debits)}</td>
             <td className="money">{formatMoney(month.credits)}</td>
-            <td className="money debit-head">{formatMoney(month.closingBalance)}</td>
+            <td
+              className={`money debit-head ${getBalanceColorClass(month.closingBalance)}`}
+            >
+              {formatMoney(month.closingBalance)}
+            </td>
           </tr>
         </tbody>
       </table>

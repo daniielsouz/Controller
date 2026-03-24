@@ -427,6 +427,16 @@ body {
   padding-right: 10px;
 }
 
+.financial-sheet-table td.balance-positive {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.financial-sheet-table td.balance-negative {
+  color: var(--brand-green);
+  font-weight: 700;
+}
+
 .sheet-total-line td,
 .sheet-final-row td {
   font-weight: 700;
