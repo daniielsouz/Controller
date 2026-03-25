@@ -515,6 +515,16 @@ export default function DashboardPage() {
       {!isLoadingMonth && selectedMonth && (
         <section className="content-grid">
           <div className="sheet-column">
+            <div className="sheet-actions">
+              <button
+                className="ghost"
+                type="button"
+                onClick={handleExportPdf}
+                disabled={isExportingPdf}
+              >
+                {isExportingPdf ? "Gerando PDF..." : "Exportar PDF"}
+              </button>
+            </div>
             <MonthlySheet
               month={selectedMonth}
               user={user}
