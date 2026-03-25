@@ -529,8 +529,6 @@ export default function DashboardPage() {
           <div className="sheet-column">
             <MonthlySheet
               month={selectedMonth}
-              onExportPdf={handleExportPdf}
-              isExportingPdf={isExportingPdf}
               user={user}
               onEdit={setEditingTransaction}
               onDelete={handleDelete}
