@@ -67,6 +67,7 @@ export default function DashboardPage() {
   const [municipality, setMunicipality] = useState("Chapeco");
   const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
   const [isSendingReport, setIsSendingReport] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isSavingTransaction, setIsSavingTransaction] = useState(false);
   const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
   const [isLoadingMonth, setIsLoadingMonth] = useState(true);
@@ -390,6 +391,38 @@ export default function DashboardPage() {
     }
   };
 
+  const handleExportPdf = async () => {
+    if (!selectedMonth) return;
+    setIsExportingPdf(true);
+    setStatusMessage({ type: "", text: "" });
+
+    try {
+      const { data } = await http.get(
+        `/months/${year}/${selectedMonth.month}/export-pdf`,
+        { responseType: "blob" }
+      );
+
+      const blob = new Blob([data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `controle-${year}-${String(selectedMonth.month).padStart(2, "0")}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      setStatusMessage({ type: "success", text: "PDF exportado com sucesso." });
+    } catch (error) {
+      setStatusMessage({
+        type: "error",
+        text: error.response?.data?.message || "Não foi possível exportar o PDF."
+      });
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   const handleSaveRecipientEmail = async () => {
     try {
       const { data } = await http.post("/recipient-emails", newRecipient);
@@ -598,6 +631,14 @@ export default function DashboardPage() {
                     disabled={isSendingReport}
                   >
                     {isSendingReport ? "Enviando..." : "Enviar PDF do mes"}
+                  </button>
+                  <button
+                    className="ghost"
+                    type="button"
+                    onClick={handleExportPdf}
+                    disabled={isExportingPdf}
+                  >
+                    {isExportingPdf ? "Gerando..." : "Exportar PDF"}
                   </button>
                 </>
               )}

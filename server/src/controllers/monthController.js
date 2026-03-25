@@ -122,3 +122,31 @@ export const sendMonthReport = async (req, res) => {
     }`
   });
 };
+
+export const exportMonthPdf = async (req, res) => {
+  const year = Number(req.params.year);
+  const month = Number(req.params.month);
+  const validationError = validateAllowedYear(year);
+
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
+  }
+
+  const ensuredMonth = await ensureFinancialMonth(req.user.id, year, month);
+  const fullMonth = await FinancialMonth.findByPk(ensuredMonth.id, {
+    include: [{ model: Transaction, as: "transactions" }]
+  });
+  const monthData = serializeMonth(fullMonth);
+  const pdfBuffer = await generateMonthlyPdf({
+    user: req.user,
+    monthData
+  });
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="controle-${year}-${String(month).padStart(2, "0")}.pdf"`
+  );
+
+  return res.send(pdfBuffer);
+};
