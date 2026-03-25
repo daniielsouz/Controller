@@ -871,6 +871,10 @@ button {
   gap: 8px;
   flex-wrap: wrap;
 }
+.sheet-actions-end {
+  justify-content: flex-end;
+  padding-top: 8px;
+}
 .sheet-actions .action-btn {
   background: transparent;
   border: 1px solid rgba(12, 47, 75, 0.2);

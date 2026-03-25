@@ -62,7 +62,15 @@ const buildSections = (transactions) => {
   ];
 };
 
-export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = true }) {
+export default function MonthlySheet({
+  month,
+  user,
+  onEdit,
+  onDelete,
+  canEdit = true,
+  onExportPdf,
+  isExportingPdf = false
+}) {
   const sections = buildSections(month.transactions || []);
   const getBalanceColorClass = (value) => {
     if (Number(value) > 0) {
@@ -281,8 +289,8 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
                 <button
                   className="ghost action-btn"
                   type="button"
-                  onClick={month.onExportPdf}
-                  disabled={month.isExportingPdf}
+                  onClick={onExportPdf}
+                  disabled={isExportingPdf}
                   title="Exportar PDF"
                 >
                   <svg
@@ -301,7 +309,7 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <path d="m7 10 5 5 5-5" />
                   </svg>
-                  <span>{month.isExportingPdf ? "Gerando PDF..." : "Exportar PDF"}</span>
+                  <span>{isExportingPdf ? "Gerando PDF..." : "Exportar PDF"}</span>
                 </button>
               </div>
             </td>
