@@ -410,8 +410,11 @@ export const generateMonthlyPdf = async ({ user, monthData }) => {
 
   try {
     const page = await browser.newPage();
+    page.setDefaultNavigationTimeout(60000);
+    page.setDefaultTimeout(60000);
     await page.setContent(buildHtml({ user, monthData }), {
-      waitUntil: "networkidle0"
+      waitUntil: "domcontentloaded",
+      timeout: 60000
     });
 
     return await page.pdf({
