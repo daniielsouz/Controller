@@ -871,6 +871,22 @@ button {
   gap: 8px;
   flex-wrap: wrap;
 }
+.sheet-actions .action-btn {
+  background: transparent;
+  border: 1px solid rgba(12, 47, 75, 0.2);
+  box-shadow: none;
+  color: #0c2f4b;
+  padding: 6px 10px;
+}
+.sheet-actions .action-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+.sheet-actions .action-btn:hover {
+  color: var(--brand-green);
+  border-color: rgba(27, 169, 156, 0.4);
+}
 
 .card {
   padding: 18px;
