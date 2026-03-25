@@ -402,7 +402,19 @@ export default function DashboardPage() {
         { responseType: "blob" }
       );
 
-      const blob = new Blob([data], { type: "application/pdf" });
+      const blob = new Blob([data], { type: data.type || "application/pdf" });
+
+      // Se o backend devolver JSON de erro, o blob virá como application/json.
+      if (blob.type?.includes("application/json")) {
+        const text = await blob.text();
+        try {
+          const parsed = JSON.parse(text);
+          throw new Error(parsed.message || "Não foi possível exportar o PDF.");
+        } catch (_err) {
+          throw new Error("Não foi possível exportar o PDF.");
+        }
+      }
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
