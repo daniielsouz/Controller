@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (token) {
     return <Navigate to="/dashboard" replace />;
@@ -40,7 +41,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Criar conta"
-      subtitle="Cadastre nome, e-mail e senha para acessar os lancamentos."
+      subtitle=""
       alternateText="Ja possui conta?"
       alternateLink={{ href: "/login", label: "Entrar" }}
     >
@@ -68,14 +69,37 @@ export default function RegisterPage() {
         </label>
         <label>
           Senha
-          <input
-            type="password"
-            value={form.password}
-            onChange={handleChange("password")}
-            required
-            autoComplete="new-password"
-            disabled={submitting}
-          />
+          <div className="password-field">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={form.password}
+              onChange={handleChange("password")}
+              required
+              autoComplete="new-password"
+              disabled={submitting}
+            />
+            <button
+              type="button"
+              className="toggle-visibility"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m15 18-.722-3.25" />
+                  <path d="M2 8a10.645 10.645 0 0 0 20 0" />
+                  <path d="m20 15-1.726-2.05" />
+                  <path d="m4 15 1.726-2.05" />
+                  <path d="m9 18 .722-3.25" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </label>
         {error && <p className="error">{error}</p>}
         <button className="primary" type="submit" disabled={submitting}>

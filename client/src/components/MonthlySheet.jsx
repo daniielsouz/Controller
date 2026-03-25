@@ -146,18 +146,79 @@ export default function MonthlySheet({ month, user, onEdit, onDelete, canEdit = 
                         <div>{transaction.description}</div>
                         <div className="sheet-mini-actions">
                           {canEdit && (
-                            <button className="ghost mini-button" type="button" onClick={() => onEdit(transaction)}>
-                              Editar
+                            <button
+                              className="ghost mini-button edit-action action-btn"
+                              type="button"
+                              onClick={() => onEdit(transaction)}
+                              title="Editar movimento"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                <path d="m15 5 4 4" />
+                              </svg>
                             </button>
                           )}
                           {canEdit && (
-                            <button className="danger mini-button" type="button" onClick={() => onDelete(transaction.id)}>
-                              Excluir
+                            <button
+                              className="danger mini-button delete-action action-btn"
+                              type="button"
+                              onClick={() => onDelete(transaction.id)}
+                              title="Excluir movimento"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                <path d="M3 6h18" />
+                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              </svg>
                             </button>
                           )}
                           {transaction.receiptUrl && (
-                            <a href={transaction.receiptUrl} target="_blank" rel="noreferrer">
-                              Nota
+                            <a
+                              href={transaction.receiptUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label="Abrir nota"
+                              className="receipt-icon"
+                              title="Abrir nota"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+                                <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                                <path d="m9 15 2 2 4-4" />
+                              </svg>
                             </a>
                           )}
                         </div>

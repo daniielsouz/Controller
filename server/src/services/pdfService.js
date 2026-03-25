@@ -140,22 +140,20 @@ const renderSection = (section) => {
   `;
 };
 
-const logoPath = path.resolve(
-  process.cwd(),
-  "client",
-  "public",
-  "logo.svg"
-);
+const envLogoUrl = process.env.LOGO_URL;
+let logoSrc = envLogoUrl || "";
 
-let logoDataUri = "";
+if (!logoSrc) {
+  const logoPath = path.resolve(process.cwd(), "client", "public", "logo.svg");
 
-try {
-  const rawLogo = fs.readFileSync(logoPath, "utf8");
-  const trimmed = rawLogo.trim();
-  const base64 = Buffer.from(trimmed, "utf8").toString("base64");
-  logoDataUri = `data:image/svg+xml;base64,${base64}`;
-} catch (_error) {
-  logoDataUri = "";
+  try {
+    const rawLogo = fs.readFileSync(logoPath, "utf8");
+    const trimmed = rawLogo.trim();
+    const base64 = Buffer.from(trimmed, "utf8").toString("base64");
+    logoSrc = `data:image/svg+xml;base64,${base64}`;
+  } catch (_error) {
+    logoSrc = "";
+  }
 }
 
 const buildHtml = ({ user, monthData }) => {
@@ -308,7 +306,7 @@ const buildHtml = ({ user, monthData }) => {
       <body>
         <div class="sheet-header">
           <div class="brand-heading">
-            ${logoDataUri ? `<img src="${logoDataUri}" alt="Grano" />` : ""}
+            ${logoSrc ? `<img src="${logoSrc}" alt="Grano" />` : ""}
             <div>
               <h1>Grano</h1>
               <p>${userName}</p>

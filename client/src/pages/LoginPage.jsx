@@ -1,23 +1,19 @@
-import { Link, Navigate } from "react-router-dom";
+﻿import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AuthCard from "../components/AuthCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function LoginPage() {
   const { token, loading, saveAuth, http } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "", rememberMe: false });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [isForgotOpen, setIsForgotOpen] = useState(false);
-  const [forgotStage, setForgotStage] = useState("request");
-  const [forgotForm, setForgotForm] = useState({
-    email: "",
-    token: "",
-    password: "",
-    confirmPassword: ""
-  });
+  const [forgotForm, setForgotForm] = useState({ email: "" });
   const [forgotStatus, setForgotStatus] = useState({ type: "", text: "" });
   const [forgotSubmitting, setForgotSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (loading) {
     return null;
@@ -39,6 +35,7 @@ export default function LoginPage() {
     try {
       const { data } = await http.post("/auth/login", form);
       saveAuth(data);
+      navigate("/dashboard", { replace: true });
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Falha no login.");
     } finally {
@@ -56,7 +53,7 @@ export default function LoginPage() {
     const emailValue = forgotForm.email.trim();
 
     if (!emailValue) {
-      setForgotStatus({ type: "error", text: "Informe o e-mail para receber o código." });
+      setForgotStatus({ type: "error", text: "Informe o e-mail para receber o codigo." });
       return;
     }
 
@@ -65,79 +62,25 @@ export default function LoginPage() {
 
     try {
       await http.post("/password/forgot", { email: emailValue });
-      setForgotStage("reset");
       setForgotStatus({
         type: "success",
-        text: "Código enviado! Verifique seu e-mail e cole o código aqui."
+        text: "Codigo enviado."
       });
     } catch (requestError) {
       setForgotStatus({
         type: "error",
-        text: requestError.response?.data?.message || "Falha ao solicitar o código."
+        text: requestError.response?.data?.message || "Falha ao solicitar o link."
       });
     } finally {
       setForgotSubmitting(false);
     }
   };
-
-  const handleForgotReset = async () => {
-    if (!forgotForm.token.trim()) {
-      setForgotStatus({ type: "error", text: "Informe o código recebido por e-mail." });
-      return;
-    }
-
-    if (!forgotForm.password) {
-      setForgotStatus({ type: "error", text: "Informe a nova senha." });
-      return;
-    }
-
-    if (forgotForm.password !== forgotForm.confirmPassword) {
-      setForgotStatus({ type: "error", text: "As senhas precisam coincidir." });
-      return;
-    }
-
-    setForgotSubmitting(true);
-    setForgotStatus({ type: "", text: "" });
-
-    try {
-      await http.post("/password/reset", {
-        token: forgotForm.token.trim(),
-        password: forgotForm.password
-      });
-      setForgotStatus({
-        type: "success",
-        text: "Senha alterada! Utilize sua nova senha para logar."
-      });
-      setTimeout(() => {
-        setIsForgotOpen(false);
-        setForgotStage("request");
-        setForgotForm((current) => ({
-          ...current,
-          token: "",
-          password: "",
-          confirmPassword: ""
-        }));
-      }, 1500);
-    } catch (requestError) {
-      setForgotStatus({
-        type: "error",
-        text: requestError.response?.data?.message || "Falha ao redefinir a senha."
-      });
-    } finally {
-      setForgotSubmitting(false);
-    }
-  };
-
   useEffect(() => {
     if (!isForgotOpen) {
       setForgotStatus({ type: "", text: "" });
       setForgotForm((current) => ({
-        ...current,
-        token: "",
-        password: "",
-        confirmPassword: ""
+        email: ""
       }));
-      setForgotStage("request");
     }
   }, [isForgotOpen]);
 
@@ -162,14 +105,57 @@ export default function LoginPage() {
         </label>
         <label>
           Senha
-          <input
-            type="password"
-            value={form.password}
-            onChange={handleChange("password")}
-            required
-            autoComplete="current-password"
-            disabled={submitting}
-          />
+          <div className="password-field">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={form.password}
+              onChange={handleChange("password")}
+              required
+              autoComplete="current-password"
+              disabled={submitting}
+            />
+            <button
+              type="button"
+              className="toggle-visibility"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPassword ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m15 18-.722-3.25" />
+                  <path d="M2 8a10.645 10.645 0 0 0 20 0" />
+                  <path d="m20 15-1.726-2.05" />
+                  <path d="m4 15 1.726-2.05" />
+                  <path d="m9 18 .722-3.25" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </label>
         <label className="checkbox-field">
           <input
@@ -178,7 +164,7 @@ export default function LoginPage() {
             onChange={handleChange("rememberMe")}
             disabled={submitting}
           />
-          <span>Lembre de mim por 30 dias</span>
+          <span>Lembre de mim</span>
         </label>
         {error && <p className="error">{error}</p>}
         <button className="primary" type="submit" disabled={submitting}>
@@ -186,7 +172,7 @@ export default function LoginPage() {
         </button>
         <button
           type="button"
-          className="ghost"
+          className="ghost forgot"
           onClick={() => setIsForgotOpen(true)}
           disabled={submitting}
         >
@@ -194,9 +180,6 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="muted centered">
-        <Link to="/cadastro">Criar conta com nome, e-mail e senha</Link>
-      </p>
       {isForgotOpen && (
         <div className="forgot-modal">
           <div className="forgot-card card">
@@ -207,116 +190,48 @@ export default function LoginPage() {
                 className="ghost mini-button"
                 onClick={() => {
                   setIsForgotOpen(false);
-                  setForgotStage("request");
                 }}
               >
                 Fechar
               </button>
             </div>
-            <p>
-              Informe o e-mail associado à conta para receber um código válido por 30 minutos ou
-              um link seguro para definir uma nova senha.
-            </p>
+            <p>Digite seu e-mail para receber o código de redefinição.</p>
             {forgotStatus.text && (
               <p className={`inline-message ${forgotStatus.type === "error" ? "error" : "success"}`}>
                 {forgotStatus.text}
               </p>
             )}
-            {forgotStage === "request" ? (
-              <>
-                <label>
-                  E-mail
-                  <input
-                    type="email"
-                    value={forgotForm.email}
-                    onChange={(event) => {
-                      setForgotForm((current) => ({ ...current, email: event.target.value }));
-                      setForgotStatus({ type: "", text: "" });
-                    }}
-                    placeholder="nome@empresa.com"
-                    disabled={forgotSubmitting}
-                  />
-                </label>
-                <div className="form-actions">
-                  <button
-                    className="primary"
-                    type="button"
-                    onClick={handleForgotRequest}
-                    disabled={forgotSubmitting}
-                  >
-                    {forgotSubmitting ? "Enviando..." : "Enviar código"}
-                  </button>
-                  <button
-                    type="button"
-                    className="ghost"
-                    onClick={() => setIsForgotOpen(false)}
-                    disabled={forgotSubmitting}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <label>
-                  Código
-                  <input
-                    value={forgotForm.token}
-                    onChange={(event) =>
-                      setForgotForm((current) => ({ ...current, token: event.target.value }))
-                    }
-                    placeholder="Cole o código recebido"
-                    disabled={forgotSubmitting}
-                  />
-                </label>
-                <label>
-                  Nova senha
-                  <input
-                    type="password"
-                    value={forgotForm.password}
-                    onChange={(event) =>
-                      setForgotForm((current) => ({ ...current, password: event.target.value }))
-                    }
-                    disabled={forgotSubmitting}
-                  />
-                </label>
-                <label>
-                  Confirme a senha
-                  <input
-                    type="password"
-                    value={forgotForm.confirmPassword}
-                    onChange={(event) =>
-                      setForgotForm((current) => ({
-                        ...current,
-                        confirmPassword: event.target.value
-                      }))
-                    }
-                    disabled={forgotSubmitting}
-                  />
-                </label>
-                <div className="form-actions">
-                  <button
-                    className="primary"
-                    type="button"
-                    onClick={handleForgotReset}
-                    disabled={forgotSubmitting}
-                  >
-                    {forgotSubmitting ? "Atualizando..." : "Redefinir senha"}
-                  </button>
-                  <button
-                    type="button"
-                    className="ghost"
-                    onClick={() => {
-                      setIsForgotOpen(false);
-                      setForgotStage("request");
-                    }}
-                    disabled={forgotSubmitting}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </>
-            )}
+            <label>
+              E-mail
+              <input
+                type="email"
+                value={forgotForm.email}
+                onChange={(event) => {
+                  setForgotForm((current) => ({ ...current, email: event.target.value }));
+                  setForgotStatus({ type: "", text: "" });
+                }}
+                placeholder="nome@empresa.com"
+                disabled={forgotSubmitting}
+              />
+            </label>
+            <div className="form-actions">
+              <button
+                className="primary"
+                type="button"
+                onClick={handleForgotRequest}
+                disabled={forgotSubmitting}
+              >
+                {forgotSubmitting ? "Enviando..." : "Enviar link"}
+              </button>
+              <button
+                type="button"
+                className="danger outline"
+                onClick={() => setIsForgotOpen(false)}
+                disabled={forgotSubmitting}
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       )}

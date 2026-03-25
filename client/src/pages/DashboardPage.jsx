@@ -71,6 +71,7 @@ export default function DashboardPage() {
   const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
   const [isLoadingMonth, setIsLoadingMonth] = useState(true);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profileStatus, setProfileStatus] = useState({ type: "", text: "" });
   const [profileForm, setProfileForm] = useState({
     name: user?.name || "",
@@ -78,6 +79,11 @@ export default function DashboardPage() {
     password: "",
     confirmPassword: ""
   });
+  const [showProfilePassword, setShowProfilePassword] = useState(false);
+  const [showProfileConfirm, setShowProfileConfirm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [showReportCard, setShowReportCard] = useState(false);
+  const [showMonthDataCard, setShowMonthDataCard] = useState(false);
   const isEditableMonth = selectedMonth?.isEditable ?? true;
   const userId = user?.id || "anonymous";
 
@@ -85,6 +91,18 @@ export default function DashboardPage() {
   const getMonthCacheKey = (selectedYear, selectedMonthValue) =>
     buildCacheKey(userId, `month:${selectedYear}:${selectedMonthValue}`);
   const recipientCacheKey = buildCacheKey(userId, "recipient-emails");
+
+  const resetProfileModalState = () => {
+    setProfileStatus({ type: "", text: "" });
+    setProfileForm({
+      name: user?.name || "",
+      email: user?.email || "",
+      password: "",
+      confirmPassword: ""
+    });
+    setShowProfilePassword(false);
+    setShowProfileConfirm(false);
+  };
 
   const hydrateYearState = (data) => {
     setMonths(data);
@@ -175,6 +193,12 @@ export default function DashboardPage() {
       setEditingTransaction(null);
     }
   }, [selectedMonth]);
+
+  useEffect(() => {
+    if (editingTransaction) {
+      setShowForm(true);
+    }
+  }, [editingTransaction]);
 
   useEffect(() => {
     if (!statusMessage.text) {
@@ -288,6 +312,12 @@ export default function DashboardPage() {
     }));
   }, [user?.name, user?.email]);
 
+  useEffect(() => {
+    if (!isProfileModalOpen) {
+      resetProfileModalState();
+    }
+  }, [isProfileModalOpen]);
+
   const handleProfileSave = async () => {
     const trimmedName = profileForm.name?.trim();
     const trimmedEmail = profileForm.email?.trim();
@@ -297,7 +327,19 @@ export default function DashboardPage() {
       return;
     }
 
-    if (profileForm.password && profileForm.password !== profileForm.confirmPassword) {
+    const newPassword = profileForm.password?.trim() || "";
+    const confirmPassword = profileForm.confirmPassword?.trim() || "";
+    const wantsPasswordChange = Boolean(newPassword || confirmPassword);
+
+    if (wantsPasswordChange && (!newPassword || !confirmPassword)) {
+      setProfileStatus({
+        type: "error",
+        text: "Para trocar a senha, preencha e confirme a nova senha."
+      });
+      return;
+    }
+
+    if (wantsPasswordChange && newPassword !== confirmPassword) {
       setProfileStatus({ type: "error", text: "As senhas precisam coincidir." });
       return;
     }
@@ -308,8 +350,8 @@ export default function DashboardPage() {
     try {
       const payload = { name: trimmedName, email: trimmedEmail };
 
-      if (profileForm.password) {
-        payload.password = profileForm.password;
+      if (wantsPasswordChange) {
+        payload.password = newPassword;
       }
 
       const { data } = await http.put("/auth/me", payload);
@@ -401,7 +443,7 @@ export default function DashboardPage() {
 
       <header className="topbar">
         <div className="topbar-brand">
-          <img src={logo} alt="Controller Financeiro" />
+          <img src={logo} alt="Grano" />
           <div>
           <p className="eyebrow">Grano</p>
           <h1>{user?.name || "Planilha mensal"}</h1>
@@ -409,6 +451,9 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="topbar-actions">
+        <button className="ghost" type="button" onClick={() => setIsProfileModalOpen(true)}>
+          Editar perfil
+        </button>
           <input
             type="number"
             min="2000"
@@ -447,150 +492,204 @@ export default function DashboardPage() {
           </div>
 
           <div className="summary-column">
-            <TransactionForm
-              year={year}
-              month={selectedMonth.month}
-              editingTransaction={editingTransaction}
-              onCancel={() => setEditingTransaction(null)}
-              onSubmit={handleCreateOrUpdate}
-              disabled={!isEditableMonth || isSavingTransaction || isDeletingTransaction}
-              isSubmitting={isSavingTransaction}
-            />
-
             <div className="card form-grid">
-              <h3>Enviar controle financeiro</h3>
-              <label>
-                Destinos salvos
-                <select
-                  value={selectedRecipientId}
-                  onChange={(event) => {
-                    const nextId = event.target.value;
-                    setSelectedRecipientId(nextId);
-                    const recipient = recipientEmails.find(
-                      (item) => String(item.id) === nextId
-                    );
-                    setReportEmail(recipient?.email || "");
-                  }}
+              <div className="card-header">
+                <h3>Novo movimento</h3>
+                <button
+                  className="ghost mini-button"
+                  type="button"
+                  onClick={() => setShowForm((current) => !current)}
+                  aria-label={showForm ? "Ocultar formulário" : "Mostrar formulário"}
                 >
-                  <option value="">Selecione um destino salvo</option>
-                  {recipientEmails.map((recipient) => (
-                    <option key={recipient.id} value={recipient.id}>
-                      {recipient.label} - {recipient.email}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                E-mail de destino
-                <input
-                  type="email"
-                  value={reportEmail}
-                  onChange={(event) => setReportEmail(event.target.value)}
+                  {showForm ? "˄" : "˅"}
+                </button>
+              </div>
+              {showForm && (
+                <TransactionForm
+                  year={year}
+                  month={selectedMonth.month}
+                  editingTransaction={editingTransaction}
+                  onCancel={() => setEditingTransaction(null)}
+                  onSubmit={handleCreateOrUpdate}
+                  disabled={!isEditableMonth || isSavingTransaction || isDeletingTransaction}
+                  isSubmitting={isSavingTransaction}
                 />
-              </label>
-              <div className="recipient-actions">
-                <button className="ghost" type="button" onClick={handleDeleteRecipientEmail}>
-                  Remover selecionado
-                </button>
-              </div>
-              <div className="recipient-save-grid">
-                <label>
-                  Nome do destino
-                  <input
-                    value={newRecipient.label}
-                    onChange={(event) =>
-                      setNewRecipient((current) => ({ ...current, label: event.target.value }))
-                    }
-                    placeholder="Ex: Financeiro empresa"
-                  />
-                </label>
-                <label>
-                  Novo e-mail para salvar
-                  <input
-                    type="email"
-                    value={newRecipient.email}
-                    onChange={(event) =>
-                      setNewRecipient((current) => ({ ...current, email: event.target.value }))
-                    }
-                    placeholder="destino@empresa.com"
-                  />
-                </label>
-                <button className="ghost" type="button" onClick={handleSaveRecipientEmail}>
-                  Salvar destino
-                </button>
-              </div>
-              <button
-                className="primary"
-                type="button"
-                onClick={handleSendReport}
-                disabled={isSendingReport}
-              >
-                {isSendingReport ? "Enviando..." : "Enviar PDF do mes"}
-              </button>
+              )}
             </div>
 
             <div className="card form-grid">
-              <h3>Dados do mes</h3>
-              <label>
-                Municipio
-                <input
-                  value={municipality}
-                  onChange={(event) => setMunicipality(event.target.value)}
-                  placeholder="Digite o municipio"
-                  disabled={!isEditableMonth}
-                />
-              </label>
-              <label>
-                Observacoes do mes
-                <textarea
-                  rows="5"
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  disabled={!isEditableMonth}
-                />
-              </label>
-              {!isEditableMonth && (
-                <p className="muted">
-                  Este mes ainda esta bloqueado para edicao. Ele sera liberado quando o calendario chegar nele.
-                </p>
+              <div className="card-header">
+                <h3>Enviar controle financeiro</h3>
+                <button
+                  className="ghost mini-button"
+                  type="button"
+                  onClick={() => setShowReportCard((current) => !current)}
+                  aria-label={showReportCard ? "Ocultar envio" : "Mostrar envio"}
+                >
+                  {showReportCard ? "˄" : "˅"}
+                </button>
+              </div>
+              {showReportCard && (
+                <>
+                  <label>
+                    Destinos salvos
+                    <select
+                      value={selectedRecipientId}
+                      onChange={(event) => {
+                        const nextId = event.target.value;
+                        setSelectedRecipientId(nextId);
+                        const recipient = recipientEmails.find(
+                          (item) => String(item.id) === nextId
+                        );
+                        setReportEmail(recipient?.email || "");
+                      }}
+                    >
+                      <option value="">Selecione um destino salvo</option>
+                      {recipientEmails.map((recipient) => (
+                        <option key={recipient.id} value={recipient.id}>
+                          {recipient.label} - {recipient.email}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    E-mail de destino
+                    <input
+                      type="email"
+                      value={reportEmail}
+                      onChange={(event) => setReportEmail(event.target.value)}
+                    />
+                  </label>
+                  <div className="recipient-actions">
+                    <button className="ghost" type="button" onClick={handleDeleteRecipientEmail}>
+                      Remover selecionado
+                    </button>
+                  </div>
+                  <div className="recipient-save-grid">
+                    <label>
+                      Nome do destino
+                      <input
+                        value={newRecipient.label}
+                        onChange={(event) =>
+                          setNewRecipient((current) => ({ ...current, label: event.target.value }))
+                        }
+                        placeholder="Ex: Financeiro empresa"
+                      />
+                    </label>
+                    <label>
+                      Novo e-mail para salvar
+                      <input
+                        type="email"
+                        value={newRecipient.email}
+                        onChange={(event) =>
+                          setNewRecipient((current) => ({ ...current, email: event.target.value }))
+                        }
+                        placeholder="destino@empresa.com"
+                      />
+                    </label>
+                    <button className="ghost" type="button" onClick={handleSaveRecipientEmail}>
+                      Salvar destino
+                    </button>
+                  </div>
+                  <button
+                    className="primary"
+                    type="button"
+                    onClick={handleSendReport}
+                    disabled={isSendingReport}
+                  >
+                    {isSendingReport ? "Enviando..." : "Enviar PDF do mes"}
+                  </button>
+                </>
               )}
-              <button className="ghost" type="button" onClick={handleSaveNotes} disabled={!isEditableMonth}>
-                Salvar dados do mes
-              </button>
             </div>
 
             <div className="card form-grid">
-              <h3>Atualizar perfil</h3>
-              {profileStatus.text && (
-                <p className={`inline-message ${profileStatus.type === "error" ? "error" : "success"}`}>
-                  {profileStatus.text}
-                </p>
+              <div className="card-header">
+                <h3>Dados do mes</h3>
+                <button
+                  className="ghost mini-button"
+                  type="button"
+                  onClick={() => setShowMonthDataCard((current) => !current)}
+                  aria-label={showMonthDataCard ? "Ocultar dados do mes" : "Mostrar dados do mes"}
+                >
+                  {showMonthDataCard ? "˄" : "˅"}
+                </button>
+              </div>
+              {showMonthDataCard && (
+                <>
+                  <label>
+                    Municipio
+                    <input
+                      value={municipality}
+                      onChange={(event) => setMunicipality(event.target.value)}
+                      placeholder="Digite o municipio"
+                      disabled={!isEditableMonth}
+                    />
+                  </label>
+                  <label>
+                    Observacoes do mes
+                    <textarea
+                      rows="5"
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                      disabled={!isEditableMonth}
+                    />
+                  </label>
+                  {!isEditableMonth && (
+                    <p className="muted">
+                      Este mes ainda esta bloqueado para edicao. Ele sera liberado quando o calendario chegar nele.
+                    </p>
+                  )}
+                  <button className="ghost" type="button" onClick={handleSaveNotes} disabled={!isEditableMonth}>
+                    Salvar dados do mes
+                  </button>
+                </>
               )}
-              <label>
-                Nome
+            </div>
+
+          </div>
+        </section>
+      )}
+      {isProfileModalOpen && (
+        <div className="profile-modal">
+          <div className="profile-modal-card card">
+            <div className="profile-modal-header">
+              <h3>Editar perfil</h3>
+              <button className="ghost mini-button" type="button" onClick={() => setIsProfileModalOpen(false)}>
+                Fechar
+              </button>
+            </div>
+          {profileStatus.text && (
+            <p className={`inline-message ${profileStatus.type === "error" ? "error" : "success"}`}>
+              {profileStatus.text}
+            </p>
+          )}
+            <label>
+              Nome
+              <input
+                value={profileForm.name}
+                onChange={(event) =>
+                  setProfileForm((current) => ({ ...current, name: event.target.value }))
+                }
+                disabled={isUpdatingProfile}
+              />
+            </label>
+            <label>
+              E-mail
+              <input
+                type="email"
+                value={profileForm.email}
+                onChange={(event) =>
+                  setProfileForm((current) => ({ ...current, email: event.target.value }))
+                }
+                disabled={isUpdatingProfile}
+              />
+            </label>
+            <label>
+              Nova senha
+              <div className="password-field">
                 <input
-                  value={profileForm.name}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, name: event.target.value }))
-                  }
-                  disabled={isUpdatingProfile}
-                />
-              </label>
-              <label>
-                E-mail
-                <input
-                  type="email"
-                  value={profileForm.email}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, email: event.target.value }))
-                  }
-                  disabled={isUpdatingProfile}
-                />
-              </label>
-              <label>
-                Nova senha
-                <input
-                  type="password"
+                  type={showProfilePassword ? "text" : "password"}
                   value={profileForm.password}
                   onChange={(event) =>
                     setProfileForm((current) => ({ ...current, password: event.target.value }))
@@ -598,30 +697,98 @@ export default function DashboardPage() {
                   placeholder="Deixe em branco para manter a atual"
                   disabled={isUpdatingProfile}
                 />
-              </label>
-              <label>
-                Confirme a senha
+                <button
+                  type="button"
+                  className="toggle-visibility"
+                  onClick={() => setShowProfilePassword((v) => !v)}
+                  aria-label={showProfilePassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showProfilePassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m15 18-.722-3.25" />
+                      <path d="M2 8a10.645 10.645 0 0 0 20 0" />
+                      <path d="m20 15-1.726-2.05" />
+                      <path d="m4 15 1.726-2.05" />
+                      <path d="m9 18 .722-3.25" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </label>
+            <label>
+              Confirme a senha
+              <div className="password-field">
                 <input
-                  type="password"
+                  type={showProfileConfirm ? "text" : "password"}
                   value={profileForm.confirmPassword}
                   onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, confirmPassword: event.target.value }))
+                    setProfileForm((current) => ({
+                      ...current,
+                      confirmPassword: event.target.value
+                    }))
                   }
                   placeholder="Repita a nova senha"
                   disabled={isUpdatingProfile}
                 />
-              </label>
+                <button
+                  type="button"
+                  className="toggle-visibility"
+                  onClick={() => setShowProfileConfirm((v) => !v)}
+                  aria-label={showProfileConfirm ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showProfileConfirm ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m15 18-.722-3.25" />
+                      <path d="M2 8a10.645 10.645 0 0 0 20 0" />
+                      <path d="m20 15-1.726-2.05" />
+                      <path d="m4 15 1.726-2.05" />
+                      <path d="m9 18 .722-3.25" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </label>
+            <div className="form-actions">
               <button
                 className="primary"
                 type="button"
                 disabled={isUpdatingProfile}
                 onClick={handleProfileSave}
               >
-                {isUpdatingProfile ? "Atualizando..." : "Atualizar perfil"}
+                {isUpdatingProfile ? "Atualizando..." : "Salvar"}
+              </button>
+              <button
+                className="ghost"
+                type="button"
+                onClick={() => {
+                  setIsProfileModalOpen(false);
+                  setProfileStatus({ type: "", text: "" });
+                  setProfileForm({
+                    name: user?.name || "",
+                    email: user?.email || "",
+                    password: "",
+                    confirmPassword: ""
+                  });
+                  setShowProfilePassword(false);
+                  setShowProfileConfirm(false);
+                }}
+                disabled={isUpdatingProfile}
+              >
+                Cancelar
               </button>
             </div>
           </div>
-        </section>
+        </div>
       )}
     </div>
   );

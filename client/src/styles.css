@@ -1,9 +1,16 @@
 :root {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #1d2936;
-  background: #eef1f4;
+  color: #0f1a24;
+  background: #f6f7f9;
   line-height: 1.45;
   font-weight: 400;
+  --brand-blue: #0c2f4b;
+  --brand-dark: #071221;
+  --brand-green: #1ba99c;
+  --brand-gold: #d9b440;
+  --brand-sand: #f4efe6;
+  --brand-slate: #f6f7f9;
+  --brand-muted: #6a7685;
 }
 
 * {
@@ -14,14 +21,9 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, #dde6ef 0 62px, #eef1f4 62px 100%),
-    repeating-linear-gradient(
-      90deg,
-      rgba(80, 100, 120, 0.04) 0,
-      rgba(80, 100, 120, 0.04) 1px,
-      transparent 1px,
-      transparent 96px
-    );
+    radial-gradient(circle at 14% 18%, rgba(27, 169, 156, 0.16), transparent 28%),
+    radial-gradient(circle at 82% 6%, rgba(217, 180, 64, 0.16), transparent 26%),
+    linear-gradient(180deg, #0c2f4b 0 64px, #f6f7f9 64px 100%);
 }
 
 button,
@@ -44,20 +46,51 @@ a {
 .auth-shell {
   display: grid;
   place-items: center;
+  background: radial-gradient(circle at 15% 20%, rgba(27, 169, 156, 0.15), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(217, 180, 64, 0.18), transparent 38%),
+    linear-gradient(135deg, #0b1524 0%, #0f1f35 35%, #0b1524 70%, #0c2f4b 100%);
 }
 
 .auth-panel,
-.card,
-.sheet-shell {
+.card {
   background: #ffffff;
   border: 1px solid #cfd6dd;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(33, 48, 64, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(8, 15, 30, 0.26);
 }
 
 .auth-panel {
-  width: min(100%, 460px);
+  width: min(100%, 500px);
   padding: 32px;
+}
+
+.auth-brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.auth-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(27, 169, 156, 0.2), rgba(217, 180, 64, 0.25));
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.auth-logo img {
+  width: 48px;
+  height: 48px;
+}
+
+.tagline {
+  color: #1a2a3a;
+  font-weight: 700;
+  margin: 6px 0 0;
 }
 
 .eyebrow,
@@ -73,6 +106,7 @@ h2,
 h3,
 p {
   margin-top: 0;
+  color: #0f1a24;
 }
 
 .muted {
@@ -117,32 +151,122 @@ textarea {
   background: #fbfcfd;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 44px;
+}
+
+.toggle-visibility {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 6px;
+  color: #0c2f4b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.toggle-visibility:hover {
+  color: var(--brand-green);
+}
+
 button {
-  border: 1px solid transparent;
-  border-radius: 6px;
+  border: 1px solid rgba(12, 47, 75, 0.12);
+  border-radius: 8px;
   padding: 10px 14px;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  background: #f7f9fb;
+  color: #0f1a24;
+  box-shadow: 0 6px 14px rgba(12, 47, 75, 0.12);
+  font-weight: 600;
+}
+
+.action-btn,
+.mini-button,
+.sheet-mini-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn svg,
+.sheet-mini-actions svg {
+  width: 16px;
+  height: 16px;
+}
+
+.edit-btn:hover,
+.edit-action:hover {
+  color: var(--brand-blue);
+  border-color: rgba(12, 47, 75, 0.35);
+}
+
+.delete-btn:hover,
+.delete-action:hover {
+  color: #b00020;
+  border-color: #e26a6a;
 }
 
 .primary {
-  background: linear-gradient(135deg, var(--brand-green), var(--brand-gold));
-  border-color: transparent;
+  background: var(--brand-green);
+  border-color: var(--brand-green);
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 12px 25px rgba(27, 169, 156, 0.35);
+  box-shadow: 0 12px 25px rgba(27, 169, 156, 0.28);
+}
+
+.primary:hover {
+  filter: brightness(0.95);
 }
 
 .ghost {
   background: #ffffff;
   color: var(--brand-dark);
   border-color: rgba(17, 36, 60, 0.15);
+  box-shadow: none;
+  font-weight: 600;
 }
 
 .danger {
   background: #fde9d8;
   color: #a14b03;
   border-color: #fbd7a1;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.danger.outline {
+  background: #ffffff;
+  color: #a31212;
+  border-color: #e26a6a;
+  box-shadow: none;
+}
+
+.danger.outline:hover {
+  background: #ffecec;
+  border-color: #d83b3b;
+}
+
+.ghost.forgot {
+  background: #fff9eb;
+  border-color: #e7c66a;
+  color: #8a6300;
+  box-shadow: none;
+}
+
+.ghost.forgot:hover {
+  background: #ffeec5;
+  border-color: #d8b03a;
 }
 
 .divider {
@@ -156,6 +280,17 @@ button {
   text-align: center;
 }
 
+.auth-switch a {
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--brand-green);
+  transition: color 0.15s ease;
+}
+
+.auth-switch a:hover {
+  color: #0c2f4b;
+}
+
 .error {
   color: #963b32;
   font-weight: 700;
@@ -166,18 +301,7 @@ button {
   font-weight: 700;
 }
 
-:root {
-  --brand-blue: #0c2f4b;
-  --brand-dark: #071221;
-  --brand-green: #1ba99c;
-  --brand-gold: #d9b440;
-  --brand-slate: #f5f7fb;
-  --brand-muted: #6a7685;
-}
-
-body {
-  background: var(--brand-slate);
-}
+/* body background already defined at top */
 
 .dashboard {
   max-width: 1600px;
@@ -192,7 +316,7 @@ body {
   margin-bottom: 18px;
   padding: 16px 24px;
   border-radius: 22px;
-  background: linear-gradient(135deg, rgba(9, 18, 38, 0.95), rgba(27, 169, 156, 0.95));
+  background: linear-gradient(135deg, rgba(12, 47, 75, 0.94), rgba(27, 169, 156, 0.9));
   box-shadow: 0 20px 35px rgba(10, 20, 40, 0.25);
   color: #fff;
 }
@@ -207,6 +331,13 @@ body {
   height: 56px;
   width: auto;
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+.topbar .muted,
+.topbar h1,
+.topbar .eyebrow,
+.topbar .tagline {
+  color: #ffffff;
 }
 
 .topbar h1 {
@@ -232,6 +363,20 @@ body {
 .topbar-actions button {
   border-radius: 999px;
   padding: 8px 16px;
+}
+
+.topbar-actions button {
+  background: #ffffff;
+  color: #0f1a24;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 16px rgba(12, 47, 75, 0.18);
+}
+
+.topbar-actions .ghost {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: none;
 }
 
 .topbar-actions input::placeholder {
@@ -359,11 +504,17 @@ body {
 
 .sheet-shell {
   overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
+  border: 1px solid rgba(12, 47, 75, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(8, 15, 30, 0.16);
+  padding: 12px;
 }
 
 .financial-sheet {
-  background: #fff;
-  border: 1px solid #222;
+  background: transparent;
+  border: 1px solid rgba(12, 47, 75, 0.08);
+  border-radius: 10px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -371,19 +522,21 @@ body {
 .financial-sheet-table {
   width: 100%;
   min-width: 760px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
-  font-family: "Times New Roman", serif;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 .financial-sheet-table td {
-  border: 1px solid #222;
+  border: 1px solid rgba(12, 47, 75, 0.12);
   min-height: 28px;
   height: 28px;
-  padding: 3px 6px;
+  padding: 6px 6px;
   text-align: center;
   vertical-align: middle;
   background: #fff;
+  color: #0f1a24;
 }
 
 .financial-sheet-table td.left {
@@ -393,6 +546,7 @@ body {
 .sheet-title {
   font-weight: 700;
   font-size: 1.05rem;
+  color: #0f1a24;
 }
 
 .sheet-subtitle,
@@ -400,11 +554,16 @@ body {
 .sheet-footer-title {
   font-weight: 700;
   font-size: 0.95rem;
+  background: transparent;
+  color: #0f1a24;
 }
 
 .sheet-head td,
 .sheet-head {
   font-weight: 700;
+  background: linear-gradient(90deg, #0c2f4b 0%, #1ba99c 100%);
+  color: #fff;
+  border-color: transparent;
 }
 
 .debit-head {
@@ -413,13 +572,31 @@ body {
 }
 
 .credit-head {
-  color: #0456c8;
+  color: #0c2f4b;
   font-weight: 700;
 }
 
 .financial-sheet-table td.saldo-highlight {
   background: rgba(217, 180, 64, 0.15);
   color: #0f1a24;
+}
+
+.financial-sheet-table thead,
+.financial-sheet-table tr:nth-child(even) td {
+  background: #fdfefe;
+}
+
+.financial-sheet-table tr:nth-child(odd) td {
+  background: #ffffff;
+}
+
+.financial-sheet-table .sheet-head td {
+  background: #0c2f4b !important;
+  color: #fff !important;
+}
+
+.financial-sheet-table .sheet-head td + td {
+  border-left: 2px solid #ffffff;
 }
 
 .financial-sheet-table td.money {
@@ -437,6 +614,22 @@ body {
   font-weight: 700;
 }
 
+.financial-sheet-table tr:first-child td:first-child {
+  border-top-left-radius: 10px;
+}
+
+.financial-sheet-table tr:first-child td:last-child {
+  border-top-right-radius: 10px;
+}
+
+.financial-sheet-table tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.financial-sheet-table tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
 .sheet-total-line td,
 .sheet-final-row td {
   font-weight: 700;
@@ -448,6 +641,106 @@ body {
   align-items: center;
   margin-top: 4px;
   flex-wrap: wrap;
+}
+
+@media (min-width: 900px) {
+  .sheet-mini-actions {
+    flex-wrap: wrap;
+  }
+}
+
+.sheet-mini-actions a,
+.sheet-mini-actions button {
+  display: inline-block;
+  background: #f7f9fb;
+  border: 1px solid rgba(12, 47, 75, 0.14);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: #0f1a24;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sheet-mini-actions a {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.sheet-mini-actions a:hover,
+.sheet-mini-actions button:hover {
+  background: #e9f2f6;
+  border-color: rgba(12, 47, 75, 0.28);
+  box-shadow: 0 4px 10px rgba(12, 47, 75, 0.12);
+}
+
+.sheet-mini-actions a:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.sheet-mini-actions a {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.sheet-mini-actions button {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.sheet-mini-actions .edit-action:hover {
+  background: #e5f1ff;
+  border-color: #4a90e2;
+  color: #0c2f4b;
+}
+
+.sheet-mini-actions .delete-action:hover {
+  background: #ffecec;
+  border-color: #e26a6a;
+  color: #a31212;
+}
+.sheet-mini-actions a svg,
+.sheet-mini-actions button svg {
+  transition: color 0.15s ease, stroke 0.15s ease;
+  color: #0c2f4b;
+  stroke: currentColor;
+}
+.sheet-mini-actions .edit-action:hover svg {
+  color: #08345e;
+}
+.sheet-mini-actions .delete-action:hover svg {
+  color: #b00020;
+}
+
+.receipt-icon {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  border-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  text-decoration: none;
+  color: #0c2f4b;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.receipt-icon:hover {
+  background: transparent;
+  border-color: transparent;
+  color: #1ba99c;
+  box-shadow: none;
 }
 
 .sheet-receipt-thumb {
@@ -583,8 +876,41 @@ body {
   padding: 18px;
 }
 
+.card.form-grid {
+  background: #ffffff;
+  border: 1px solid rgba(12, 47, 75, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 16px 26px rgba(12, 47, 75, 0.12);
+  color: #0f1a24;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #0f1a24;
+}
+
 .card h3 {
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+}
+
+.card-header .mini-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  text-align: center;
+  line-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c2f4b;
+  color: #fff;
+  border-color: #0c2f4b;
+  box-shadow: 0 8px 16px rgba(12, 47, 75, 0.2);
 }
 
 .form-actions {
@@ -641,6 +967,12 @@ body {
   width: min(480px, 100%);
   position: relative;
   padding: 24px;
+  border: 1px solid rgba(12, 47, 75, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 18px 32px rgba(12, 47, 75, 0.2);
+  background: #ffffff;
+  display: grid;
+  gap: 16px;
 }
 
 .forgot-header {
@@ -648,6 +980,57 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+
+.forgot-header .mini-button {
+  background: #fde9d8;
+  color: #a31212;
+  border-color: #fbd7a1;
+}
+
+.forgot-header .mini-button:hover {
+  background: #fbd3c4;
+  border-color: #f6a88f;
+}
+
+.forgot-resend {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #ced7e6;
+  display: grid;
+  gap: 10px;
+}
+
+.forgot-resend .ghost {
+  background: var(--brand-green);
+  border-color: var(--brand-green);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(27, 169, 156, 0.22);
+}
+
+.forgot-resend .ghost:disabled {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  box-shadow: none;
+}
+
+.forgot-card .form-grid,
+.forgot-card .forgot-resend {
+  gap: 12px;
+}
+
+.forgot-card h3 {
+  margin: 0 0 4px;
+  color: #0c2f4b;
+}
+
+.forgot-card p {
+  color: #334150;
+}
+
+.forgot-card .primary {
+  width: 100%;
 }
 
 .recipient-save-grid {
@@ -720,6 +1103,18 @@ body {
   .financial-sheet-table td {
     padding: 4px 5px;
     font-size: 0.88rem;
+  }
+
+  .card-header .mini-button {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    line-height: 28px;
+  }
+
+  .receipt-icon {
+    width: 16px;
+    height: 16px;
   }
 
   .sheet-receipt-thumb {
@@ -858,4 +1253,43 @@ body {
   .financial-sheet-table td {
     font-size: 0.76rem;
   }
+
+  .sheet-mini-actions {
+    gap: 4px;
+  }
+
+  .sheet-mini-actions a,
+  .sheet-mini-actions button {
+    padding: 3px 8px;
+  }
+}
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.actions-cell a {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  color: #0c2f4b;
+}
+.actions-cell button {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  color: #0c2f4b;
+}
+.actions-cell button svg {
+  transition: color 0.15s ease, stroke 0.15s ease;
+  color: #0c2f4b;
+  stroke: currentColor;
+}
+.actions-cell .edit-btn:hover svg {
+  color: #0c2f4b;
+}
+.actions-cell .delete-btn:hover svg {
+  color: #b00020;
 }

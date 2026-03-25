@@ -29,6 +29,17 @@ Esse projeto junta:
 - municipio editavel por mes
 - observacoes por mes
 
+## Segurança e reset de senha
+
+- Códigos de redefinição expiram em 5 minutos e são validados no servidor.
+- O link do e-mail já leva o e-mail e o código; o temporizador da página usa a expiração real do token.
+- Reenvio só habilita quando o token expira ou quando não há código válido.
+
+### Roteiro rápido de validação manual
+- **Login:** acessar `/login`, fazer login com credenciais válidas e confirmar redirecionamento ao dashboard.
+- **Reset de senha:** solicitar “Esqueci minha senha”, abrir o link recebido, validar que o timer mostra o tempo restante real, redefinir a senha e fazer login com a nova senha.
+- **Reenvio:** aguardar o timer zerar e clicar em “Solicitar novo codigo”; confirmar recebimento do novo e-mail.
+
 ## Regra de negocio
 
 A conta do mes segue esta leitura:
